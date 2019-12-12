@@ -65,8 +65,6 @@ from photutils import centroid_com
         -directory called path+/photom_images/ to store output images
         -"YBphotometry_results.csv" will be created when program is run for the first time and appended each time program is run
     #"""
-
-#This is a test change comment
     
 #######################################################
 # Paths and File Locations                           #
