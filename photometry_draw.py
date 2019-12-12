@@ -25,9 +25,8 @@ import pandas as pd
 
 #You will need to make sure the following packages have been installed first:
 
-from tkinter import *
-import tkinter
-
+#from tkinter import *
+#import tkinter
 #conda install -c anaconda tk
 
 
@@ -67,7 +66,8 @@ from photutils import centroid_com
         -"YBphotometry_results.csv" will be created when program is run for the first time and appended each time program is run
     #"""
 
-
+#This is a test change comment
+    
 #######################################################
 # Paths and File Locations                           #
 ######################################################
