@@ -22,6 +22,7 @@ import copy
 import cv2
 import os
 import pandas as pd
+from astropy.nddata import Cutout2D
 
 #You will need to make sure the following packages have been installed first:
 
@@ -164,12 +165,12 @@ def get_coords(img, imgw, wave, ybid):
                print ("You have chosen to quit this program")
                sys.exit()
                    
-        plt.close('clkfig')          
+        plt.close('all')          
         return coords
 
 #generates and saves the images
 #call with (image, masked image, interpolated image, resid)
-def make_figs(im1, im2, im3, im4, imw, um, cin):
+def make_figs(im1, im2, im3, im4, fitfile, imw, um, cin):
     
 ############Generate the figures for each source##################
 #note I'm being lazy here and calling from the code things that aren't defined in function
@@ -214,6 +215,26 @@ def make_figs(im1, im2, im3, im4, imw, um, cin):
     figurename=path+'photom_images/'+um+'interpolation_YB_%s.png' %(YB)
     fig.savefig(figurename)
 
+
+    # Save the fits cut-outs for fututre use if needed
+    im1name=path+'fits_cutouts/'+um+'cropped_YB_%s.fits' %(YB)
+    im2name=path+'fits_cutouts/'+um+'masked_YB_%s.fits' %(YB)
+    im3name=path+'fits_cutouts/'+um+'interp_YB_%s.fits' %(YB)
+    im4name=path+'fits_cutouts/'+um+'resid_YB_%s.fits' %(YB)
+
+    fitfile.data=im1 
+    fitfile.writeto(im1name, overwrite=True)
+
+    fitfile.data=im2
+    fitfile.writeto(im2name, overwrite=True)
+
+    fitfile.data=im3 
+    fitfile.writeto(im3name, overwrite=True)
+
+    fitfile.data=im4
+    fitfile.writeto(im4name, overwrite=True)
+
+    
 #Function to examine images and input flags for output file
 def make_flags(fim1, fim2, um):
     plt.figure(figsize=(6,3))
@@ -236,7 +257,7 @@ def make_flags(fim1, fim2, um):
     if um == '24' or um == '12':
         foo=0
         
-        while foo != 5:
+        while foo != 9:
             flag1="Saturated Image"
             flag2="Diffraction Pattern/Star"
             flag3="Poor Confidence in Photometry"
@@ -246,8 +267,8 @@ def make_flags(fim1, fim2, um):
             print('[2] '+flag2)
             print('[3] '+flag3)
             print('[4] '+flag4)
-            print('[5] Done Flagging')
-            print('[6] Clear Flags and Start Over')
+            print('[9] Done Flagging')
+            print('[10] Clear Flags and Start Over')
             foo = int(input("select option:  "))
             if foo == 1:
                 flag[0]=1
@@ -257,14 +278,14 @@ def make_flags(fim1, fim2, um):
                 flag[2]=1 
             if foo == 4:
                 flag[3]=1 
-            if foo == 6:
+            if foo == 10:
                 flag==[0,0,0,0,0,0,0,0,0,0,0]  
                 
     if um == '8':
         foo=0
         while foo != 9:
             flag1="Saturated Image"
-            flag2="Multiple sources within YB"
+            flag2="Multiple sources within masked area"
             flag3="Filamentary or bubble rim structure"
             flag4="Not a YB or a star"
             flag5="IRDC Association"
@@ -338,18 +359,18 @@ class choose_image():
             print('Please try again.')
             sys.exit()
 
-        temp = fits.open(path8)
+        temp = fits.open(path8)[0]
         self.um8 = temp
-        self.um8data = temp[0].data
-        self.um8w = wcs.WCS(temp[0].header) 
-        temp = fits.open(path12)    
+        self.um8data = temp.data
+        self.um8w = wcs.WCS(temp.header) 
+        temp = fits.open(path12)[0] 
         self.um12 = temp
-        self.um12data = temp[0].data
-        self.um12w = wcs.WCS(temp[0].header) 
-        temp = fits.open(path24)    
+        self.um12data = temp.data
+        self.um12w = wcs.WCS(temp.header) 
+        temp = fits.open(path24)[0]    
         self.um24 = temp
-        self.um24data = temp[0].data
-#        self.um24w = wcs.WCS(temp[0].header)
+        self.um24data = temp.data
+        self.um24w = wcs.WCS(temp.header)
 
 
 #class that does the masking and interpolation, returns masked, blanked, interp, resid
@@ -586,7 +607,7 @@ for k in range (YB1,YB2):
     YB_lat_pix = pixcoords[0][1]
     YB_rad_pix = YB_rad/pixscale8
 
-    #define a window to zoom in on the YB
+#    #define a window to zoom in on the YB
     xw = xs = int(YB_long_pix + 0.5) # x coordinates of source and window center
     yw = ys = int(YB_lat_pix + 0.5)  # y coordinates of source and window center
     dxw = 100                        # x width of window
@@ -598,10 +619,39 @@ for k in range (YB1,YB2):
     x2 = int(xw+0.5*dxw)
     y2 = int(yw+0.5*dyw)
 
-    #Create cropped 100 x 100 pixel image arrays centered on YB
-    orig = image.um8data[y1:y2,x1:x2]
-    orig12 = image.um12data[y1:y2,x1:x2]
-    orig24 = image.um24data[y1:y2,x1:x2]
+#    #Create cropped 100 x 100 pixel image arrays centered on YB
+#    orig = image.um8data[y1:y2,x1:x2]
+#    orig12 = image.um12data[y1:y2,x1:x2]
+#    orig24 = image.um24data[y1:y2,x1:x2]
+#    
+    
+    #use Cutout2D to make the zoomed windows
+    position=(YB_long_pix+0.5, YB_lat_pix+0.5)
+    size=(100,100)
+    
+    cut8=Cutout2D(data=image.um8data, position=position, size=size, wcs=image.um8w)
+    cut12=Cutout2D(data=image.um12data, position=position, size=size, wcs=image.um12w)
+    cut24=Cutout2D(data=image.um24data, position=position, size=size, wcs=image.um24w)
+  
+    fitcopy8=image.um8
+    fitcopy8.data=cut8.data
+    fitcopy8.header.update(cut8.wcs.to_header())  
+    
+    fitcopy12=image.um12
+    fitcopy12.data=cut12.data
+    fitcopy12.header.update(cut12.wcs.to_header())  
+
+    fitcopy24=image.um24
+    fitcopy24.data=cut24.data
+    fitcopy24.header.update(cut24.wcs.to_header())  
+    
+    orig=cut8.data
+    orig12=cut12.data
+    orig24=cut24.data
+    
+    wcs8=cut8.wcs
+    wcs12=cut12.wcs
+    wcs24=cut24.wcs
     
     #create empty residuals to fill up later
     diff8 = orig*0
@@ -624,7 +674,7 @@ for k in range (YB1,YB2):
         print('Beginning the 24 um analysis')
         coords=[]  
         #get the coordinates on 24um image
-        coordinates=get_coords(workmask24, image.um8w, '24 um', YB)
+        coordinates=get_coords(workmask24, wcs24, '24 um', YB)
         print('got coords')
         #do the masking and interpolation on 8um image
         print('starting interp')
@@ -634,13 +684,13 @@ for k in range (YB1,YB2):
         compact = compactness(diff24, YB_rad_pix)
         compact24 = compact.index
         #display and save the images for the 8um image
-        make_figs(workmask24, interp24.blanked, interp24.interp, interp24.resid, image.um8w, '24_um', compact24)
+        make_figs(workmask24, interp24.blanked, interp24.interp, interp24.resid, fitcopy24, wcs24, '24_um', compact24)
 
         #ACCEPT IMAGE OR REDO
         plt.pause(1)
         check = input('Please consult the residual image. Would you like to redo? Type n to continue, anything else to redo:  ')
     plt.close('all')
-    #flag24 = make_flags(workmask24, interp24.resid, '24')
+    flag24 = make_flags(workmask24, interp24.resid, '24')
     flag24=[0,0,0,0,0,0,0,0,0,0,0]
     coord24=str(coordinates)
     plt.close('all')   
@@ -653,7 +703,7 @@ for k in range (YB1,YB2):
         print('Beginning the 12 um analysis')    
         coords=[]  
         #get the coordinates on 24um image
-        coordinates=get_coords(workmask12, image.um12w, '12 um', YB)
+        coordinates=get_coords(workmask12, wcs12, '12 um', YB)
         #do the masking and interpolation on 8um image
         interp12 = do_interp(workmask12, coordinates)
         diff12=interp12.resid
@@ -661,14 +711,14 @@ for k in range (YB1,YB2):
         compact = compactness(diff12, YB_rad_pix)
         compact12 = compact.index
         #display and save the images for the 8um image
-        make_figs(workmask12, interp12.blanked, interp12.interp, interp12.resid, image.um12w, '12_um', compact12)
+        make_figs(workmask12, interp12.blanked, interp12.interp, interp12.resid, fitcopy12, wcs12, '12_um', compact12)
 
         #PROMPT TO ACCEPT IMAGE OR REDO 
         plt.pause(1) 
         check = input('Please consult the residual image. Would you like to redo? Type n to continue, anything else to redo:  ')
     plt.close('all')
-#    flag12 = make_flags(workmask12, interp12.resid, '12')
-    flag12=[0,0,0,0,0,0,0,0,0,0,0]
+    flag12 = make_flags(workmask12, interp12.resid, '12')
+    #flag12=[0,0,0,0,0,0,0,0,0,0,0]
     coord12=str(coordinates)
     plt.close('all')  
     
@@ -680,7 +730,7 @@ for k in range (YB1,YB2):
         print('Beginning the 8 um analysis')
         coords=[]  
         #get the coordinates on 8um image
-        coordinates=get_coords(workmask, image.um8w, '8 um', YB)
+        coordinates=get_coords(workmask, wcs8, '8 um', YB)
         #do the masking and interpolation on 8um image
         interp8 = do_interp(workmask, coordinates)
         diff8=interp8.resid
@@ -688,14 +738,14 @@ for k in range (YB1,YB2):
         compact = compactness(diff8, YB_rad_pix)
         compact8 = compact.index
         #display and save the images for the 8um image
-        make_figs(workmask, interp8.blanked, interp8.interp, interp8.resid, image.um8w, '8_um', compact8)
+        make_figs(workmask, interp8.blanked, interp8.interp, interp8.resid, fitcopy8, wcs8, '8_um', compact8)
 
         #PROMPT TO ACCEPT IMAGE OR REDO 
         plt.pause(1)
         check = input('Please consult the residual image. Would you like to redo? Type n to continue, anything else to redo:  ')
     plt.close('all')
-#    flag8 = make_flags(workmask, interp8.resid, '8')
-    flag8=[0,0,0,0,0,0,0,0,0,0,0]
+    flag8 = make_flags(workmask, interp8.resid, '8')
+    #flag8=[0,0,0,0,0,0,0,0,0,0,0]
     coord8=str(coordinates)
     plt.close('all')  
     
