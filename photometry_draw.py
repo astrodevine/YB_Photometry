@@ -23,7 +23,7 @@ import cv2
 import os
 import pandas as pd
 from astropy.nddata import Cutout2D
-
+from itertools import chain, repeat
 #You will need to make sure the following packages have been installed first:
 
 #from tkinter import *
@@ -269,7 +269,15 @@ def make_flags(fim1, fim2, um):
             print('[4] '+flag4)
             print('[9] Done Flagging')
             print('[10] Clear Flags and Start Over')
-            foo = int(input("select option:  "))
+            
+            prompts = chain(["Enter a number from the flagging options:"], repeat("Not a flagging option! Try again:"))
+            replies = map(input, prompts)
+            numeric_strings = filter(str.isnumeric, replies)
+            numbers = map(float, numeric_strings)
+            is_positive = (0).__lt__
+            valid_response = next(filter(is_positive, numbers))
+            foo = valid_response
+            
             if foo == 1:
                 flag[0]=1
             if foo == 2:
@@ -279,7 +287,11 @@ def make_flags(fim1, fim2, um):
             if foo == 4:
                 flag[3]=1 
             if foo == 10:
-                flag==[0,0,0,0,0,0,0,0,0,0,0]  
+                flag==[0,0,0,0,0,0,0,0,0,0,0] 
+            if foo == 9:
+                print ("done flagging")
+            else:
+                foo == 0
                 
     if um == '8':
         foo=0
@@ -293,6 +305,14 @@ def make_flags(fim1, fim2, um):
             flag7="Poor Confidence in Photometry"
             flag8="Other/Revisit this source"   
             
+            prompts = chain(["Enter a number from the flagging options:"], repeat("Not a flagging option! Try again:"))
+            replies = map(input, prompts)
+            numeric_strings = filter(str.isnumeric, replies)
+            numbers = map(float, numeric_strings)
+            is_option = (0).__lt__  #This provides the condition thst the input should be greater than 0.
+            valid_response = next(filter(is_option, numbers)) 
+            foo = valid_response
+            
             print('flag options:')
             print('[1] '+flag1)
             print('[2] '+flag2)
@@ -305,7 +325,7 @@ def make_flags(fim1, fim2, um):
             print('[9] Done Flagging')
             print('[10] Clear Flags and Start Over')
             
-            foo = int(input("select option:  "))
+            
             if foo == 1:
                 flag[0]=1
             if foo == 2:
@@ -323,7 +343,11 @@ def make_flags(fim1, fim2, um):
             if foo == 8:
                 flag[7]=1                   
             if foo == 10:
-                flag=[0,0,0,0,0,0,0,0,0,0,0]                             
+                flag=[0,0,0,0,0,0,0,0,0,0,0] 
+            if foo == 9:
+                print ("done flagging")
+            else:
+                foo == 0                           
     return flag
 
 #######################################################
