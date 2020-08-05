@@ -206,22 +206,22 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um, cin):
 
 
     # Save the fits cut-outs for fututre use if needed
-    #im1name=path1+'fits_cutouts/'+um+'cropped_YB_%s.fits' %(YB)
-    #im2name=path1+'fits_cutouts/'+um+'masked_YB_%s.fits' %(YB)
-    #im3name=path1+'fits_cutouts/'+um+'interp_YB_%s.fits' %(YB)
-    #im4name=path1+'fits_cutouts/'+um+'resid_YB_%s.fits' %(YB)
+    im1name=path1+'fits_cutouts/'+um+'cropped_YB_%s.fits' %(YB)
+    im2name=path1+'fits_cutouts/'+um+'masked_YB_%s.fits' %(YB)
+    im3name=path1+'fits_cutouts/'+um+'interp_YB_%s.fits' %(YB)
+    im4name=path1+'fits_cutouts/'+um+'resid_YB_%s.fits' %(YB)
 
-    #fitfile.data=im1 
-    #fitfile.writeto(im1name, overwrite=True)
+    fitfile.data=im1 
+    fitfile.writeto(im1name, overwrite=True)
 
-    #fitfile.data=im2
-    #fitfile.writeto(im2name, overwrite=True)
+    fitfile.data=im2
+    fitfile.writeto(im2name, overwrite=True)
 
-    #fitfile.data=im3 
-    #fitfile.writeto(im3name, overwrite=True)
+    fitfile.data=im3 
+    fitfile.writeto(im3name, overwrite=True)
 
-    #fitfile.data=im4
-    #fitfile.writeto(im4name, overwrite=True)
+    fitfile.data=im4
+    fitfile.writeto(im4name, overwrite=True)
 
     
 #Function to examine images and input flags for output file
@@ -743,7 +743,6 @@ for k in range (YB1,YB2):
         check = input('Please consult the residual image. Would you like to redo? Type n to continue, anything else to redo:  ')
     plt.close('all')
     flag24 = make_flags(workmask24, interp24.resid, '24')
-    #flag24=[0,0,0,0,0,0,0,0,0,0,0]
     coord24=str(coordinates)
     plt.close('all')   
     
@@ -775,7 +774,6 @@ for k in range (YB1,YB2):
         check = input('Please consult the residual image. Would you like to redo? Type n to continue, anything else to redo:  ')
     plt.close('all')
     flag12 = make_flags(workmask12, interp12.resid, '12')
-    #flag12=[0,0,0,0,0,0,0,0,0,0,0]
     coord12=str(coordinates)
     plt.close('all')  
     
