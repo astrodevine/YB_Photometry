@@ -23,7 +23,8 @@ import cv2
 import os
 import pandas as pd
 from astropy.nddata import Cutout2D
-from itertools import chain, repeat
+
+
 #You will need to make sure the following packages have been installed first:
 
 #from tkinter import *
@@ -35,14 +36,13 @@ from photutils import centroid_com
 #https://photutils.readthedocs.io/en/stable/install.html
 #conda install photutils -c astropy
 
-
+from itertools import chain, repeat
 #import threading
 #import mynormalize
 #import mycolorbar
 
 """
     Katie Devine/Anupa Poudyal
-    Last Update: 3 October 2019
     
     Opens images of YBs and prompts users to click around YB images at 8, 12, and 24 um.
     Polygon mask is then applied, and background interpolation done. 
@@ -72,10 +72,11 @@ from photutils import centroid_com
 ######################################################
 
 #EDIT THIS PATH FOR THE FILE LOCATION ON YOUR MACHINE
-path='/Users/katiedevine/YB/code/'
+path='/Users/anupapoudyal/Desktop/images/'
+path1='/Users/anupapoudyal/Desktop/images/2020Summer/'
 #image_name = path+'GLM_03000+0000_mosaic_I4.fits'
 catalog_name = path+'USE_THIS_CATALOG_ybcat_MWP_with_ID.csv' 
-out_name = path+ 'YBphotometry_results.csv'
+out_name = path1+ 'YBphotometry_results.csv'
 #######################################################
 # Define my functions and classes                    # 
 ######################################################
@@ -151,20 +152,8 @@ def get_coords(img, imgw, wave, ybid):
         plt.text(1,2, text6, ha='left', wrap=True)         
         
         #interactive clicking to fill up coords
-        coords=clkfig.ginput(n=-1, timeout=60, show_clicks=True, mouse_stop=2)
-
-
-        #if no clicks, prompt to continue or exit
-        if coords == []:
-            answer = input("Do you wish to continue? Press y for yes. Else any other key, which will save nothing in your program. ")
-
-            if answer == 'y':
-               print ('You have chosen to continue on')
-
-            else:
-               print ("You have chosen to quit this program")
-               sys.exit()
-                   
+        coords=clkfig.ginput(n=-1, timeout=300, show_clicks=True, mouse_stop=2)
+        
         plt.close('all')          
         return coords
 
@@ -212,27 +201,27 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um, cin):
     fig.suptitle('Interpolation of YB %s at '%(YB) + um , fontsize=10)
     
     # Save this result as a new png
-    figurename=path+'photom_images/'+um+'interpolation_YB_%s.png' %(YB)
+    figurename=path1+'photom_images/'+um+'interpolation_YB_%s.png' %(YB)
     fig.savefig(figurename)
 
 
     # Save the fits cut-outs for fututre use if needed
-    im1name=path+'fits_cutouts/'+um+'cropped_YB_%s.fits' %(YB)
-    im2name=path+'fits_cutouts/'+um+'masked_YB_%s.fits' %(YB)
-    im3name=path+'fits_cutouts/'+um+'interp_YB_%s.fits' %(YB)
-    im4name=path+'fits_cutouts/'+um+'resid_YB_%s.fits' %(YB)
+    #im1name=path1+'fits_cutouts/'+um+'cropped_YB_%s.fits' %(YB)
+    #im2name=path1+'fits_cutouts/'+um+'masked_YB_%s.fits' %(YB)
+    #im3name=path1+'fits_cutouts/'+um+'interp_YB_%s.fits' %(YB)
+    #im4name=path1+'fits_cutouts/'+um+'resid_YB_%s.fits' %(YB)
 
-    fitfile.data=im1 
-    fitfile.writeto(im1name, overwrite=True)
+    #fitfile.data=im1 
+    #fitfile.writeto(im1name, overwrite=True)
 
-    fitfile.data=im2
-    fitfile.writeto(im2name, overwrite=True)
+    #fitfile.data=im2
+    #fitfile.writeto(im2name, overwrite=True)
 
-    fitfile.data=im3 
-    fitfile.writeto(im3name, overwrite=True)
+    #fitfile.data=im3 
+    #fitfile.writeto(im3name, overwrite=True)
 
-    fitfile.data=im4
-    fitfile.writeto(im4name, overwrite=True)
+    #fitfile.data=im4
+    #fitfile.writeto(im4name, overwrite=True)
 
     
 #Function to examine images and input flags for output file
@@ -255,9 +244,10 @@ def make_flags(fim1, fim2, um):
     print('####################################')
           
     if um == '24' or um == '12':
-        foo=0
-        
-        while foo != 9:
+       foo = 0
+       
+       while foo != 9:
+           
             flag1="Saturated Image"
             flag2="Diffraction Pattern/Star"
             flag3="Poor Confidence in Photometry"
@@ -270,6 +260,7 @@ def make_flags(fim1, fim2, um):
             print('[9] Done Flagging')
             print('[10] Clear Flags and Start Over')
             
+                
             prompts = chain(["Enter a number from the flagging options:"], repeat("Not a flagging option! Try again:"))
             replies = map(input, prompts)
             numeric_strings = filter(str.isnumeric, replies)
@@ -292,9 +283,11 @@ def make_flags(fim1, fim2, um):
                 print ("done flagging")
             else:
                 foo == 0
+        
                 
     if um == '8':
         foo=0
+        
         while foo != 9:
             flag1="Saturated Image"
             flag2="Multiple sources within masked area"
@@ -303,15 +296,7 @@ def make_flags(fim1, fim2, um):
             flag5="IRDC Association"
             flag6="Diffraction Pattern/Star"
             flag7="Poor Confidence in Photometry"
-            flag8="Other/Revisit this source"   
-            
-            prompts = chain(["Enter a number from the flagging options:"], repeat("Not a flagging option! Try again:"))
-            replies = map(input, prompts)
-            numeric_strings = filter(str.isnumeric, replies)
-            numbers = map(float, numeric_strings)
-            is_option = (0).__lt__  #This provides the condition thst the input should be greater than 0.
-            valid_response = next(filter(is_option, numbers)) 
-            foo = valid_response
+            flag8="Other/Revisit this source"  
             
             print('flag options:')
             print('[1] '+flag1)
@@ -324,6 +309,14 @@ def make_flags(fim1, fim2, um):
             print('[8] '+flag8)            
             print('[9] Done Flagging')
             print('[10] Clear Flags and Start Over')
+            
+            prompts = chain(["Enter a number from the flagging options:"], repeat("Not a flagging option! Try again:"))
+            replies = map(input, prompts)
+            numeric_strings = filter(str.isnumeric, replies)
+            numbers = map(float, numeric_strings)
+            is_option = (0).__lt__  #This provides the condition thst the input should be greater than 0.
+            valid_response = next(filter(is_option, numbers)) 
+            foo = valid_response
             
             
             if foo == 1:
@@ -347,7 +340,7 @@ def make_flags(fim1, fim2, um):
             if foo == 9:
                 print ("done flagging")
             else:
-                foo == 0                           
+                foo == 0
     return flag
 
 #######################################################
@@ -509,39 +502,68 @@ class get_flux():
         self.um24 = flux_tot24    
         
 #class to calculate the "compactness index"
+#class to calculate the "compactness index"
 class compactness():
-    def __init__(self, inresid, inrad):
+    def __init__(self, inresid, inrad,fitfile):
         dif_flux = 0
         flux = 0
         
+#find the offset between the user identified center (at 50,50) and maximum
+        x, y = centroid_com(inresid)
+        xdif = abs(x-50)
+        ydif = abs(y-50)
+        offset = math.sqrt(xdif**2+ydif**2)
+        
+        
+        fitfile.data=inresid
+        
+        position1=(x,y)
+        size1=(51,51)  #Using odd sixe to use the middle pixel as the center
+    
+        cut = Cutout2D(data=inresid.data, position=position1, size=size1)
+        cuto = cut.data
+        
+        
         #generate a rotated by 90 deg image and get flux difference in Jy
-        rotated_image = [[] for x in range(len(inresid))]
-        for i in range(len(inresid)):
-            for j in range(len(inresid[i])):
-                rotated_image[len(inresid) - j - 1].append(inresid[i][j])
+        rotated_image = [[] for x in range(len(cuto))]
+        for i in range(len(cuto)):
+            for j in range(len(cuto[i])):
+                rotated_image[len(cuto) - j - 1].append(cuto[i][j])
         
-        dif_im = rotated_image-inresid
+        dif_im = rotated_image-cuto
         
-        for ROW in range (0,100):       #sum the values of the pixels
-            for column in range(0,100):
+        for ROW in range (0,51):       #sum the values of the pixels
+            for column in range(0,51):
                 dif_flux = dif_flux + abs(dif_im[ROW][column]) 
                 flux = flux + abs(inresid[ROW][column]) 
                 
         #normalize the flux difference by original input
         asym = abs(dif_flux)/abs(flux)
                     
-        #find the offset between the user identified center (at 50,50) and maximum
-        x, y = centroid_com(inresid)
-        xdif = abs(x-50)
-        ydif = abs(y-50)
-        offset = math.sqrt(xdif**2+ydif**2)
+     
         #normalize by radius and then increase by some scaling factor, currently 10
+        
         offset = offset/inrad*10
         
         #use the information above to calucate the "compactness index" 
         cindex=math.sqrt((0.25*offset)**2+(0.75*asym)**2)
         
         self.index = cindex
+        
+        plt.figure(figsize=(6,3))
+
+        plt.subplot(1,3,1,title='Resid')
+        plt.plot(25.5, 25.5, "og", markersize=5,marker = "x")
+        plt.imshow(cuto, cmap = 'hot')#, norm = LogNorm(vmin=rotated_image.min(), vmax=rotated_image.max()))
+        
+        plt.subplot(1,3,2,title='Rotated')
+        plt.plot(25.5, 25.5, "og", markersize=5, marker = "x")
+        plt.imshow(rotated_image, cmap = 'hot')
+        
+        plt.subplot(1,3,3,title='diff')
+        plt.imshow(dif_im, cmap = 'hot')
+        
+        plt.pause(1)
         
 #######################################################
 # Actual Program Begins Here   #
@@ -699,13 +721,19 @@ for k in range (YB1,YB2):
         coords=[]  
         #get the coordinates on 24um image
         coordinates=get_coords(workmask24, wcs24, '24 um', YB)
+
+        #if no clicks, exit
+        if coordinates == []:
+            print("Timeout limit of 5 minutes reached. Exiting program. Results for most recent YB will not be saved.")
+            sys.exit()
+               
         print('got coords')
         #do the masking and interpolation on 8um image
         print('starting interp')
         interp24 = do_interp(workmask24, coordinates)
         diff24=interp24.resid
         #calculate the compactness index
-        compact = compactness(diff24, YB_rad_pix)
+        compact = compactness(diff24, YB_rad_pix, fitcopy24)
         compact24 = compact.index
         #display and save the images for the 8um image
         make_figs(workmask24, interp24.blanked, interp24.interp, interp24.resid, fitcopy24, wcs24, '24_um', compact24)
@@ -715,7 +743,7 @@ for k in range (YB1,YB2):
         check = input('Please consult the residual image. Would you like to redo? Type n to continue, anything else to redo:  ')
     plt.close('all')
     flag24 = make_flags(workmask24, interp24.resid, '24')
-    flag24=[0,0,0,0,0,0,0,0,0,0,0]
+    #flag24=[0,0,0,0,0,0,0,0,0,0,0]
     coord24=str(coordinates)
     plt.close('all')   
     
@@ -728,11 +756,16 @@ for k in range (YB1,YB2):
         coords=[]  
         #get the coordinates on 24um image
         coordinates=get_coords(workmask12, wcs12, '12 um', YB)
+        #if no clicks, exit
+        if coordinates == []:
+            print("Timeout limit of 5 minutes reached. Exiting program. Results for most recent YB will not be saved.")
+            sys.exit()
+               
         #do the masking and interpolation on 8um image
         interp12 = do_interp(workmask12, coordinates)
         diff12=interp12.resid
         #calculate the compactness index
-        compact = compactness(diff12, YB_rad_pix)
+        compact = compactness(diff12, YB_rad_pix, fitcopy12)
         compact12 = compact.index
         #display and save the images for the 8um image
         make_figs(workmask12, interp12.blanked, interp12.interp, interp12.resid, fitcopy12, wcs12, '12_um', compact12)
@@ -755,11 +788,16 @@ for k in range (YB1,YB2):
         coords=[]  
         #get the coordinates on 8um image
         coordinates=get_coords(workmask, wcs8, '8 um', YB)
+        #if no clicks, exit
+        if coordinates == []:
+            print("Timeout limit of 5 minutes reached. Exiting program. Results for most recent YB will not be saved.")
+            sys.exit()
+               
         #do the masking and interpolation on 8um image
         interp8 = do_interp(workmask, coordinates)
         diff8=interp8.resid
         #calculate the compactness index
-        compact = compactness(diff8, YB_rad_pix)
+        compact = compactness(diff8, YB_rad_pix, fitcopy8)
         compact8 = compact.index
         #display and save the images for the 8um image
         make_figs(workmask, interp8.blanked, interp8.interp, interp8.resid, fitcopy8, wcs8, '8_um', compact8)
@@ -769,7 +807,6 @@ for k in range (YB1,YB2):
         check = input('Please consult the residual image. Would you like to redo? Type n to continue, anything else to redo:  ')
     plt.close('all')
     flag8 = make_flags(workmask, interp8.resid, '8')
-    #flag8=[0,0,0,0,0,0,0,0,0,0,0]
     coord8=str(coordinates)
     plt.close('all')  
     
