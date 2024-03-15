@@ -1521,6 +1521,7 @@ while (k < YB2):
                 plt.close('all')
             except(ValueError):
                 print("There was a problem with the 70 micron image.")
+                coord70 = ' '
         else:
             print('70 micron image is saturated.')
             coord70 = ' '
