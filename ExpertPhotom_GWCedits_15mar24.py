@@ -231,11 +231,12 @@ def get_coords(img, imgw, wave, ybid):
     plt.axis('off')
     text = ("*Click in the grey-scale image. ")
     text1 = ("*Left click to add points.")
-    text2 = ("*Middle click when finished to exit.")
-    text3 = ("*All other images are for reference.")
-    text4 = ("*Circles indicate MWP user radius.")
-    text5 = ("*You will be prompted to inspect results;")
-    text6 = ("type 'n' to continue, anything else to redo.")
+    text2 = ("*Right click to undo most recent point.")
+    text3 = ("*Middle click when finished to exit.")
+    text4 = ("*All other images are for reference.")
+    text5 = ("*Circles indicate MWP user radius.")
+    text6 = ("*You will be prompted to inspect results;")
+    text7 = ("type 'n' to continue, anything else to redo.")
     plt.text(1, 8, text, ha='left', wrap=True)
     plt.text(1, 7, text1, ha='left', wrap=True)
     plt.text(1, 6, text2, ha='left', wrap=True)
@@ -243,6 +244,7 @@ def get_coords(img, imgw, wave, ybid):
     plt.text(1, 4, text4, ha='left', wrap=True)
     plt.text(1, 3, text5, ha='left', wrap=True)
     plt.text(1, 2, text6, ha='left', wrap=True)
+    plt.text(1, 1, text7, ha='left', wrap=True)
 
     #interactive clicking to fill up coords
     coords = clkfig.ginput(n=-1, timeout=300, show_clicks=True, mouse_stop=2)
@@ -1144,15 +1146,13 @@ class do_interp():
         x = goodvals[1]  # x values of finite coordinates
         y = goodvals[0]  # y values of finite coordinates
 
-        for i in x:
-            for j in y:
-
-                def get_fvals(x, y):
-                    range_array = np.arange(x.size)
-                    vals = np.zeros(x.size)
-                    for (i, xi, yi) in zip(range_array, x, y):
-                        vals[i] = img[yi][xi]
-                    return vals
+        
+        def get_fvals(x, y):
+        range_array = np.arange(x.size)
+        vals = np.zeros(x.size)
+        for (i, xi, yi) in zip(range_array, x, y):
+            vals[i] = img[yi][xi]
+        return vals
 
         fvals = get_fvals(x, y)
 
@@ -1191,22 +1191,27 @@ class do_interp():
 class get_flux():
     def __init__(self, d8, d12, d24, d70):
         #reset the total flux value
-        flux_tot8 = 0
-        flux_tot12 = 0
-        flux_tot24 = 0
-        flux_tot70 = 0
+        #flux_tot8 = 0
+        #flux_tot12 = 0
+        #flux_tot24 = 0
+        #flux_tot70 = 0
         #go through 100 x 100 pixel residual image and add up the pixel values
-        for ROW in range(0, 100):
-            for column in range(0, 100):
+        flux_tot8 = sum(map(sum,d8))
+        flux_tot12 = sum(map(sum,d12))
+        flux_tot24 = sum(map(sum,d24))
+        flux_tot70 = sum(map(sum,d70))
+        
+        #for ROW in range(0, 100):
+        #    for column in range(0, 100):
 
-                flux_tot8 = flux_tot8 + d8[ROW][
-                    column]  #gives the value of photometry
-                flux_tot12 = flux_tot12 + d12[ROW][
-                    column]  #gives the value of photometry
-                flux_tot24 = flux_tot24 + d24[ROW][
-                    column]  #gives the value of photometry
-                flux_tot70 = flux_tot70 + d70[ROW][
-                    column]  #gives the value of photometry
+        #        flux_tot8 = flux_tot8 + d8[ROW][
+        #            column]  #gives the value of photometry
+        #        flux_tot12 = flux_tot12 + d12[ROW][
+        #            column]  #gives the value of photometry
+        #        flux_tot24 = flux_tot24 + d24[ROW][
+        #            column]  #gives the value of photometry
+        #        flux_tot70 = flux_tot70 + d70[ROW][
+        #            column]  #gives the value of photometry
 
             #convert units of flux total.  MIPS/IRAC in MJy/Sr*Pixel, want Jy
             #conversion: (MJy/Sr*Pixel)*(Sr/Pix)*(Jy/MJy)
