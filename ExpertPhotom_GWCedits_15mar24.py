@@ -1521,7 +1521,8 @@ while (k < YB2):
                     if check != 'n':
                         plt.close('all')
                 plt.close('all')
-                flag70 = make_flags(workmask70, interp70.resid, '70')
+                #flag70 = make_flags(workmask70, interp70.resid, '70')
+                flag70 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 coord70 = str(coordinates)
                 plt.close('all')
             except(ValueError):
@@ -1570,7 +1571,8 @@ while (k < YB2):
                 if check != 'n':
                     plt.close('all')
             plt.close('all')
-            flag24 = make_flags(workmask24, interp24.resid, '24')
+            #flag24 = make_flags(workmask24, interp24.resid, '24')
+            flag24 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             coord24 = str(coordinates)
             plt.close('all')
         else:
@@ -1613,7 +1615,8 @@ while (k < YB2):
                 if check != 'n':
                     plt.close('all')
             plt.close('all')
-            flag12 = make_flags(workmask12, interp12.resid, '12')
+            #flag12 = make_flags(workmask12, interp12.resid, '12')
+            flag12 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             coord12 = str(coordinates)
             plt.close('all')
         else:
@@ -1656,7 +1659,8 @@ while (k < YB2):
                 if check != 'n':
                     plt.close('all')
             plt.close('all')
-            flag8 = make_flags(workmask, interp8.resid, '8')
+            #flag8 = make_flags(workmask, interp8.resid, '8')
+            flag8 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             coord8 = str(coordinates)
             plt.close('all')
         else:
