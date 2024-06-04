@@ -19,6 +19,7 @@ plt.ion()
 #get_ipython().run_line_magic('matplotlib', 'qt')
 # the interactive plot
 from matplotlib.patches import Circle
+from matplotlib.colors import SymLogNorm
 from matplotlib.colors import LogNorm
 #import astropy.units as u
 from astropy.io import fits
@@ -114,7 +115,7 @@ def get_coords(img, imgw, wave, ybid):
     #clkfig.add_subplot(111, projection = imgw)
     #clkfig = plt.subplot(1,2,2, title = 'select the coordinates for polygon in this image.', projection = imgw)
     #clkfig.suptitle('select the coordinates for polygon in this image.', fontsize=8)
-    #plt.imshow(img, cmap = 'hot', norm = LogNorm())
+    #plt.imshow(img, cmap = 'hot', norm = SymLogNorm(linthresh= LinearThreshold))
     #plt.xlabel('Longitude')
     #plt.ylabel('Latitude')
 
@@ -155,7 +156,7 @@ def get_coords(img, imgw, wave, ybid):
     clkfig.suptitle('You are examining the ' + wave + ' image for YB' +
                     str(ybid))
     plt.axis('off')
-    plt.imshow(img, cmap='gray', norm=LogNorm())
+    plt.imshow(img, cmap='gray', norm=SymLogNorm(linthresh= LinearThreshold))
 
     #Plot the 70 um
     if math.isnan(orig70.min()) == False and math.isnan(orig70.max()) == False:
@@ -163,14 +164,14 @@ def get_coords(img, imgw, wave, ybid):
         plt.axis('off')
         plt.imshow(orig70,
                    cmap='hot',
-                   norm=LogNorm(vmin=orig70.min(), vmax=orig70.max()))
+                   norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig70.min(), vmax=orig70.max()))
         fee.add_artist(circle1)
     else:
         fee = plt.subplot(2, 4, 5, title='70 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig70,
                    cmap='hot',
-                   norm=LogNorm())
+                   norm=SymLogNorm(linthresh= LinearThreshold))
         fee.add_artist(circle1)
 
     #Plot the 24 um
@@ -179,14 +180,14 @@ def get_coords(img, imgw, wave, ybid):
         plt.axis('off')
         plt.imshow(orig24,
                    cmap='hot',
-                   norm=LogNorm(vmin=orig24.min(), vmax=orig24.max()))
+                   norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig24.min(), vmax=orig24.max()))
         foo.add_artist(circle2)
     else:
         foo = plt.subplot(2, 4, 6, title='24 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig24,
                    cmap='hot',
-                   norm=LogNorm())
+                   norm=SymLogNorm(linthresh= LinearThreshold))
         foo.add_artist(circle2)
         
     #Plot the 12 um
@@ -195,14 +196,14 @@ def get_coords(img, imgw, wave, ybid):
         plt.axis('off')
         plt.imshow(orig12,
                    cmap='hot',
-                   norm=LogNorm(vmin=orig12.min(), vmax=orig12.max()))
+                   norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig12.min(), vmax=orig12.max()))
         faa.add_artist(circle3)
     else:
         faa = plt.subplot(2, 4, 7, title='12 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig12,
                    cmap='hot',
-                   norm=LogNorm())
+                   norm=SymLogNorm(linthresh= LinearThreshold))
         faa.add_artist(circle3)
 
     #Plot the 8um
@@ -211,14 +212,14 @@ def get_coords(img, imgw, wave, ybid):
         plt.axis('off')
         plt.imshow(orig,
                    cmap='hot',
-                   norm=LogNorm(vmin=orig.min(), vmax=orig.max()))
+                   norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig.min(), vmax=orig.max()))
         fum.add_artist(circle4)
     else:
         fum = plt.subplot(2, 4, 8, title='8 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig,
                    cmap='hot',
-                   norm=LogNorm())
+                   norm=SymLogNorm(linthresh= LinearThreshold))
         fum.add_artist(circle4)
     #cbar = plt.colorbar(format='%05.2f')
     #cbar.set_norm(mynormalize.MyNormalize(vmin=orig.min(),vmax=orig.max(),stretch='linear'))
@@ -266,7 +267,7 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
     #Plot the original image and MWP User YB circle
     circle = Circle((dxw / 2, dyw / 2), YB_rad_pix, fill=False)
     fig1 = plt.subplot(2, 2, 1, title='Cropped image', projection=imw)
-    plt.imshow(im1, cmap='hot', norm=LogNorm(vmin=im1.min(), vmax=im1.max()))
+    plt.imshow(im1, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
     plt.axis('off')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
@@ -281,14 +282,14 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
 
     #Plot the mask
     plt.subplot(2, 2, 2, title='Masked Image', projection=imw)
-    plt.imshow(im2, cmap='hot', norm=LogNorm(vmin=im1.min(), vmax=im1.max()))
+    plt.imshow(im2, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
     plt.axis('off')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
 
     #Plot the interpolated background
     plt.subplot(2, 2, 3, title='Interpolated image', projection=imw)
-    plt.imshow(im3, cmap='hot', norm=LogNorm(vmin=im1.min(), vmax=im1.max()))
+    plt.imshow(im3, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
     plt.axis('off')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
@@ -338,7 +339,7 @@ def make_flags(fim1, fim2, um):
     plt.subplot(1, 2, 1, title='Original Data')
     plt.imshow(fim1,
                cmap='hot',
-               norm=LogNorm(vmin=fim1.min(), vmax=fim1.max()))
+               norm=SymLogNorm(linthresh= LinearThreshold, vmin=fim1.min(), vmax=fim1.max()))
 
     plt.subplot(1, 2, 2, title='Bkgrnd Removed')
     plt.imshow(fim2, cmap='hot')
@@ -1327,6 +1328,9 @@ else:
 BegYB = 3028
 
 YBlast = 3034
+
+#Set linear threshold of the SymLogNorm
+LinearThreshold = 0.001
 
 #The below allows the user to start at the beginning of the range or from where they left off last time the program was ran
 print('Welcome! Where would you like to start?')
