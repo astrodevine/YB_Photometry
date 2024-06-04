@@ -133,7 +133,7 @@ def get_coords(img, imgw, wave, ybid):
             plotloc.append((YBloc['l'][i] - YB_long_pix + (dxw/2 - 5), YBloc['b'][i] - YB_lat_pix + (dyw/2 -5)))
 
     #Plot rg image,
-    axrg = plt.subplot(2, 3, 1, title='RG (24 + 8 um)', projection=imgw)
+    axrg = plt.subplot(2, 4, 1, title='RG (24 + 8 um)', projection=imgw)
     r = orig24
     g = orig
     b = np.zeros(orig.shape)
@@ -148,7 +148,7 @@ def get_coords(img, imgw, wave, ybid):
 
     #Add subtitles to the plot
     clkfig.add_subplot(2,
-                       3,
+                       4,
                        2,
                        title='Select coordinates in this ' + wave + ' image',
                        projection=imgw)
@@ -159,14 +159,14 @@ def get_coords(img, imgw, wave, ybid):
 
     #Plot the 70 um
     if math.isnan(orig70.min()) == False and math.isnan(orig70.max()) == False:
-        fee = plt.subplot(2, 3, 4, title='70 um', projection=imgw)
+        fee = plt.subplot(2, 4, 5, title='70 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig70,
                    cmap='hot',
                    norm=LogNorm(vmin=orig70.min(), vmax=orig70.max()))
         fee.add_artist(circle1)
     else:
-        fee = plt.subplot(2, 3, 4, title='70 um', projection=imgw)
+        fee = plt.subplot(2, 4, 5, title='70 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig70,
                    cmap='hot',
@@ -175,14 +175,14 @@ def get_coords(img, imgw, wave, ybid):
 
     #Plot the 24 um
     if math.isnan(orig24.min()) == False and math.isnan(orig24.max()) == False:
-        foo = plt.subplot(2, 3, 4, title='24 um', projection=imgw)
+        foo = plt.subplot(2, 4, 6, title='24 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig24,
                    cmap='hot',
                    norm=LogNorm(vmin=orig24.min(), vmax=orig24.max()))
         foo.add_artist(circle2)
     else:
-        foo = plt.subplot(2, 3, 4, title='24 um', projection=imgw)
+        foo = plt.subplot(2, 4, 6, title='24 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig24,
                    cmap='hot',
@@ -191,14 +191,14 @@ def get_coords(img, imgw, wave, ybid):
         
     #Plot the 12 um
     if math.isnan(orig12.min()) == False and math.isnan(orig12.max()) == False:
-        faa = plt.subplot(2, 3, 5, title='12 um', projection=imgw)
+        faa = plt.subplot(2, 4, 7, title='12 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig12,
                    cmap='hot',
                    norm=LogNorm(vmin=orig12.min(), vmax=orig12.max()))
         faa.add_artist(circle3)
     else:
-        faa = plt.subplot(2, 3, 5, title='12 um', projection=imgw)
+        faa = plt.subplot(2, 4, 7, title='12 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig12,
                    cmap='hot',
@@ -207,14 +207,14 @@ def get_coords(img, imgw, wave, ybid):
 
     #Plot the 8um
     if math.isnan(orig.min()) == False and math.isnan(orig.max()) == False:
-        fum = plt.subplot(2, 3, 6, title='8 um', projection=imgw)
+        fum = plt.subplot(2, 4, 8, title='8 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig,
                    cmap='hot',
                    norm=LogNorm(vmin=orig.min(), vmax=orig.max()))
         fum.add_artist(circle4)
     else:
-        fum = plt.subplot(2, 3, 6, title='8 um', projection=imgw)
+        fum = plt.subplot(2, 4, 8, title='8 um', projection=imgw)
         plt.axis('off')
         plt.imshow(orig,
                    cmap='hot',
@@ -226,7 +226,7 @@ def get_coords(img, imgw, wave, ybid):
     #cbar.connect()
 
     #Plot instructions
-    plt.subplot(2, 3, 3)
+    plt.subplot(2, 4, 3)
     plt.axis([0, 10, 0, 10])
     plt.axis('off')
     text = ("*Click in the grey-scale image. ")
