@@ -1149,11 +1149,11 @@ class do_interp():
 
         
         def get_fvals(x, y):
-        range_array = np.arange(x.size)
-        vals = np.zeros(x.size)
-        for (i, xi, yi) in zip(range_array, x, y):
-            vals[i] = img[yi][xi]
-        return vals
+            range_array = np.arange(x.size)
+            vals = np.zeros(x.size)
+            for (i, xi, yi) in zip(range_array, x, y):
+                vals[i] = img[yi][xi]
+            return vals
 
         fvals = get_fvals(x, y)
 
