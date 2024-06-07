@@ -8,6 +8,8 @@ Version Last updated 7/15/2021 by Makenzie Stapley
 the MWP location and radius
 '''
 
+import traceback #used for debugging to see the actual errors traceback.print_exc() prints error log
+
 import numpy as np
 import matplotlib
 #matplotlib.use('TkAgg')
@@ -19,8 +21,9 @@ plt.ion()
 #get_ipython().run_line_magic('matplotlib', 'qt')
 # the interactive plot
 from matplotlib.patches import Circle
-from matplotlib.colors import SymLogNorm
 from matplotlib.colors import LogNorm
+from matplotlib.colors import SymLogNorm
+
 #import astropy.units as u
 from astropy.io import fits
 from astropy import wcs
@@ -99,7 +102,7 @@ path1 = '.'
 image_name = os.path.join(path, 'GLM_03000+0000_mosaic_I4.fits')
 catalog_name = os.path.join(path, 'USE_THIS_CATALOG_ybcat_MWP_with_ID.csv')
 #out_name = os.path.join(path1, 'YBphotometry_results.csv')
-instID = 'WolfChase1' #Change to be your ID
+instID = 'EthanBass' #'WolfChase1' #Change to be your ID
 out_name = os.path.join(path, 'YBphotometry_results_' + instID + '.csv')
 
 ######################################################
@@ -115,7 +118,7 @@ def get_coords(img, imgw, wave, ybid):
     #clkfig.add_subplot(111, projection = imgw)
     #clkfig = plt.subplot(1,2,2, title = 'select the coordinates for polygon in this image.', projection = imgw)
     #clkfig.suptitle('select the coordinates for polygon in this image.', fontsize=8)
-    #plt.imshow(img, cmap = 'hot', norm = SymLogNorm(linthresh= LinearThreshold))
+    #plt.imshow(img, cmap = 'hot', norm = LogNorm())
     #plt.xlabel('Longitude')
     #plt.ylabel('Latitude')
 
@@ -267,10 +270,10 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
     #Plot the original image and MWP User YB circle
     circle = Circle((dxw / 2, dyw / 2), YB_rad_pix, fill=False)
     fig1 = plt.subplot(2, 2, 1, title='Cropped image', projection=imw)
-    plt.imshow(im1, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    plt.imshow(im1, cmap='hot', norm=SymLogNorm(linthresh = LinearThreshold, vmin=im1.min(), vmax=im1.max()))
     plt.axis('off')
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
+    #plt.xlabel('Longitude')
+    #plt.ylabel('Latitude')
     fig1.add_artist(circle)
     fig1.text(dxw / 2,
               dyw / 2 - 5,
@@ -282,14 +285,14 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
 
     #Plot the mask
     plt.subplot(2, 2, 2, title='Masked Image', projection=imw)
-    plt.imshow(im2, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    plt.imshow(im2, cmap='hot', norm=SymLogNorm(linthresh=LinearThreshold, vmin=im1.min(), vmax=im1.max()))
     plt.axis('off')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
 
     #Plot the interpolated background
     plt.subplot(2, 2, 3, title='Interpolated image', projection=imw)
-    plt.imshow(im3, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    plt.imshow(im3, cmap='hot', norm=SymLogNorm(linthresh=LinearThreshold, vmin=im1.min(), vmax=im1.max()))
     plt.axis('off')
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
@@ -339,7 +342,7 @@ def make_flags(fim1, fim2, um):
     plt.subplot(1, 2, 1, title='Original Data')
     plt.imshow(fim1,
                cmap='hot',
-               norm=SymLogNorm(linthresh= LinearThreshold, vmin=fim1.min(), vmax=fim1.max()))
+               norm=SymLogNorm(linthresh=LinearThreshold, vmin=fim1.min(), vmax=fim1.max()))
 
     plt.subplot(1, 2, 2, title='Bkgrnd Removed')
     plt.imshow(fim2, cmap='hot')
@@ -1115,7 +1118,27 @@ class do_interp():
         xmax = max(xyvals[:, 0]) + 5
         ymin = min(xyvals[:, 1]) - 5
         ymax = max(xyvals[:, 1]) + 5
-        #print(xmin, xmax, ymin, ymax)
+        
+        ########################################
+        #
+        ## OOB bug fix
+        #
+        ########################################
+        
+        if xmin < 0:
+            print('Too small of x values, please click closer to the center')
+            print('interpolation will be done with the closest safest value')
+            xmin = 0
+        
+        if ymin < 0:
+            print('Too small of y values, please click closer to the center')
+            print('interpolation will be done with the closest safest value')
+            ymin = 0
+        
+          
+        
+        
+        #define the 4 areas
         mask = np.zeros_like(img)
         inverse_mask = np.zeros_like(img)
         region_mask = np.zeros_like(img)
@@ -1123,31 +1146,41 @@ class do_interp():
 
         # filling pixels inside the polygon defined by "vertices" with the fill color
         cv2.fillPoly(mask, vertices, 255)
+        #This makes the mask have 0's and 255 in the interior region
+        
         #TURN ALL Non-ZERO to NaN
-        inverse_mask[np.nonzero(mask)] = int(
-            1)  # ones inside poly, zero outside
+        #This makes the interior region be positive while exterior is 0
+        inverse_mask[np.nonzero(mask)] = int(1)  # ones inside poly, zero outside
 
-        mask[np.nonzero(mask)] = float('nan')
+        
+        mask[np.nonzero(mask)] = float('nan') #nan inside, 0 outside
+        
         #TURN ALL ZERO to 1
         mask[np.where(mask == 0)] = int(1)  # nan inside poly, 1 outside
+        
+        #region mask is 0 inside poly, 1 outside
         region_mask = mask
         region_mask = np.nan_to_num(region_mask)  # zero in poly, 1 outside
+        
+        #cutout is the smaller area that is 5 pixels outside of the polygon
+        #result is nan in poly, 1 outside poly, nan outside of rectangle
         cutout[ymin:ymax, xmin:xmax] = mask[ymin:ymax, xmin:xmax]
         #TURN EVERYTHING OUTSIDE THAT RANGE to NaN
         cutout[np.where(cutout == 0)] = float('nan')
 
-        #TAKE image=workask*mask will make a image with original values but NaN in polygon
-        #blank = img*mask
+        #blank is then nan outside of rectangle, 0 inside polygon, 
+        #and normal image values elsewhere
         blank = img * cutout
-        self.masked = mask
-        self.blanked = blank
+        self.masked = mask #nan inside poly, 1 outside
+        self.blanked = blank #nan inside poly, normal image outside, nan outside rect
+        
+        #goodvals is list of values that are inside of the rectangle not in polygon
         goodvals = np.where(np.isfinite(blank))
 
         #perform the interpolation over the masked coordinates
         x = goodvals[1]  # x values of finite coordinates
         y = goodvals[0]  # y values of finite coordinates
 
-        
         def get_fvals(x, y):
             range_array = np.arange(x.size)
             vals = np.zeros(x.size)
@@ -1182,10 +1215,18 @@ class do_interp():
 
         fnew_2D = make_2D(fnew, xnew, ynew, img)
 
+        #inverse_mask is ones inside poly, 0 out. 
+        #region_mask is 0 inside poly, 1 outside. 
+        
+        
         self.interp = img * region_mask + fnew_2D * inverse_mask
 
         #generate the residual image (original - interpolated background)
         self.resid = img - (img * region_mask + fnew_2D * inverse_mask)
+        
+        #Weird coloration on images is from there exiting negative values inside of the inverse mask
+        #ie when fnew_2d > img for values, or that the interpolated values are greater than the source extracted
+        #thus if we dont extract the extra light from a star then we should get a bright background
 
 
 #class that gets the flux from residual images. Unit conversions are applied here.
@@ -1201,7 +1242,6 @@ class get_flux():
         flux_tot12 = sum(map(sum,d12))
         flux_tot24 = sum(map(sum,d24))
         flux_tot70 = sum(map(sum,d70))
-        
         #for ROW in range(0, 100):
         #    for column in range(0, 100):
 
@@ -1325,11 +1365,11 @@ else:
 ######################################################
 
 #Set Pre-chosen range
-BegYB = 3028
+BegYB = 1667
 
 YBlast = 3034
 
-#Set linear threshold of the SymLogNorm
+#Determine how much of the scalar negative numbers get
 LinearThreshold = 0.001
 
 #The below allows the user to start at the beginning of the range or from where they left off last time the program was ran
@@ -1525,12 +1565,14 @@ while (k < YB2):
                     if check != 'n':
                         plt.close('all')
                 plt.close('all')
-                #flag70 = make_flags(workmask70, interp70.resid, '70')
+                #flag70 = make_flags(workmask70, interp70.resid, '70') 
                 flag70 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 coord70 = str(coordinates)
                 plt.close('all')
             except(ValueError):
                 print("There was a problem with the 70 micron image.")
+                traceback.print_exc()
+                
                 coord70 = ' '
         else:
             print('70 micron image is saturated.')
@@ -1539,6 +1581,30 @@ while (k < YB2):
     
         if math.isnan(orig24.min()) == False and math.isnan(orig24.max()) == False:
             check = 'y'
+            
+            ##########################################################
+            #
+            ###  Temporary code to see if we can reuse prior points
+            #
+            ##########################################################
+            if coordinates != []:
+                interp24 = do_interp(workmask24, coordinates)
+                diff24 = interp24.resid
+                #display and save the images for the 24um image
+                make_figs(workmask24, interp24.blanked, interp24.interp,
+                      interp24.resid, fitcopy24, wcs24, '24_um')
+
+                #Prompt user to accept image or redo
+                plt.pause(0.1)
+                check = input(
+                    'Please consult the residual image. Would you like to reuse the points? Type n to continue, anything else to redo:  '
+                    )
+                if check != 'n':
+                    plt.close('all')
+            
+            
+            ##########################################################
+            
             while check != 'n':
                 # 24 um image analysis
                 #reset global list coords that gets creaeted in get_coords
@@ -1586,6 +1652,30 @@ while (k < YB2):
     
         if math.isnan(orig12.min()) == False and math.isnan(orig12.max()) == False:
             check = 'y'
+            
+            ##########################################################
+            #
+            ###  Temporary code to see if we can reuse prior points
+            #
+            ##########################################################
+            if coordinates != []:
+                #do the masking and interpolation on 12um image
+                interp12 = do_interp(workmask12, coordinates)
+                diff12 = interp12.resid
+                #display and save the images for the 12um image
+                make_figs(workmask12, interp12.blanked, interp12.interp,
+                          interp12.resid, fitcopy12, wcs12, '12_um')
+                
+                #Prompt user to accept image or redo
+                plt.pause(0.1)
+                check = input(
+                    'Please consult the residual image. Would you like to reuse? Type n to continue, anything else to redo:  '
+                    )
+                if check != 'n':
+                    plt.close('all')
+            
+            
+            ##########################################################
             while check != 'n':
                 # 12 um image analysis
                 #reset global list coords that gets created in get_coords
@@ -1630,6 +1720,30 @@ while (k < YB2):
     
         if math.isnan(orig.min()) == False and math.isnan(orig.max()) == False:
             check = 'y'
+            
+            ##########################################################
+            #
+            ###  Temporary code to see if we can reuse prior points
+            #
+            ##########################################################
+            if coordinates != []:
+                interp8 = do_interp(workmask, coordinates)
+                diff8 = interp8.resid
+                #display and save the images for the 8um image
+                make_figs(workmask, interp8.blanked, interp8.interp, interp8.resid,
+                          fitcopy8, wcs8, '8_um')
+                
+                #Prompt user to accept image or redo
+                plt.pause(1)
+                check = input(
+                    'Please consult the residual image. Would you like to reuse? Type n to continue, anything else to redo:  '
+                    )
+                if check != 'n':
+                    plt.close('all')
+            
+            
+            ##########################################################
+            
             while check != 'n':
                 # 8 um image analysis
                 #reset global list coords that gets creaeted in get_coords
