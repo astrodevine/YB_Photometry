@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib
 #matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Button
 
 plt.ion()
 #get_ipython().run_line_magic('matplotlib', 'inline')
@@ -306,7 +307,28 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
     plt.subplots_adjust(top=0.9)
     fig.suptitle('Interpolation of YB %s at ' % (YB) + um, fontsize=10)
 
-    plt.pause(1)
+    #Add Widgets to let the user interact with the mouse
+    plt.subplots_adjust(bottom=0.2)  # Adjust the plot to make space for buttons
+
+    # Create buttons
+    ax_button_redo_yes = plt.axes([0.1, 0.05, 0.35, 0.075])
+    ax_button_redo_no = plt.axes([0.55, 0.05, 0.35, 0.075])
+
+    button_yes = Button(ax_button_redo_yes, 'redo')
+    button_no = Button(ax_button_redo_no, 'continue')
+
+    # Connect buttons to callback functions
+    button_yes.on_clicked(redo_yes)
+    button_no.on_clicked(redo_no)
+    
+    # Show the plot and block execution until the window is closed
+    #plt.show(block=True)
+    global redo
+    redo = None
+    plt.show()
+    # Wait for user to press a button
+    while redo is None:
+        plt.pause(0.1)
     
     # Save this result as a new png
     figurename = os.path.join(path1,
@@ -1488,8 +1510,10 @@ while (k < YB2):
     try:
         if np.isnan(orig70.min()) == False and np.isnan(orig70.max()) == False:
             check = 'y'
+            redo = True
             try:
-                while check != 'n':
+                #while check != 'n':
+                while redo:
                     # 70 um image analysis
                     #reset global list coords that gets creaeted in get_coords
                     print('######################################################')
@@ -1511,26 +1535,33 @@ while (k < YB2):
                     print('got coords')
                     #do the masking and interpolation on 70um image
                     print('starting interp')
+                    
+                    
+                    
                     interp70 = do_interp(workmask70, coordinates)
                     diff70 = interp70.resid
+                    
                     #display and save the images for the 70um image
                     make_figs(workmask70, interp70.blanked, interp70.interp,
                               interp70.resid, fitcopy70, wcs70, '70_um')
-        
                     #Prompt user to accept image or redo
-                    plt.pause(1)
-                    check = input(
+                    #plt.pause(0.1)
+                    '''check = input(
                         'Please consult the residual image. Would you like to redo? Type n to continue, anything else to redo:  '
                     )
                     if check != 'n':
+                        plt.close('all')'''
+                    if not redo:
                         plt.close('all')
                 plt.close('all')
-                #flag70 = make_flags(workmask70, interp70.resid, '70')
+                #flag70 = make_flags(workmask70, interp70.resid, '70') 
                 flag70 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 coord70 = str(coordinates)
                 plt.close('all')
             except(ValueError):
                 print("There was a problem with the 70 micron image.")
+                traceback.print_exc()
+                
                 coord70 = ' '
         else:
             print('70 micron image is saturated.')
@@ -1539,7 +1570,25 @@ while (k < YB2):
     
         if math.isnan(orig24.min()) == False and math.isnan(orig24.max()) == False:
             check = 'y'
-            while check != 'n':
+            
+            if coordinates != []:
+                #Reuse previos points
+                interp24 = do_interp(workmask24, coordinates)
+                diff24 = interp24.resid
+                #display and save the images for the 24um image
+                make_figs(workmask24, interp24.blanked, interp24.interp,
+                      interp24.resid, fitcopy24, wcs24, '24_um')
+
+                #Prompt user to accept image or redo
+                '''plt.pause(0.1)
+                check = input(
+                    'Please consult the residual image. Would you like to reuse the points? Type n to continue, anything else to redo:  '
+                    )
+                if check != 'n':
+                    plt.close('all')'''
+            
+            #while check != 'n':
+            while redo:
                 # 24 um image analysis
                 #reset global list coords that gets creaeted in get_coords
                 print('######################################################')
@@ -1568,11 +1617,13 @@ while (k < YB2):
                           interp24.resid, fitcopy24, wcs24, '24_um')
     
                 #Prompt user to accept image or redo
-                plt.pause(1)
+                '''plt.pause(0.1)
                 check = input(
                     'Please consult the residual image. Would you like to redo? Type n to continue, anything else to redo:  '
                 )
                 if check != 'n':
+                    plt.close('all')'''
+                if not redo:
                     plt.close('all')
             plt.close('all')
             #flag24 = make_flags(workmask24, interp24.resid, '24')
@@ -1586,7 +1637,25 @@ while (k < YB2):
     
         if math.isnan(orig12.min()) == False and math.isnan(orig12.max()) == False:
             check = 'y'
-            while check != 'n':
+            #Reuse previous points
+            if coordinates != []:
+                #do the masking and interpolation on 12um image
+                interp12 = do_interp(workmask12, coordinates)
+                diff12 = interp12.resid
+                #display and save the images for the 12um image
+                make_figs(workmask12, interp12.blanked, interp12.interp,
+                          interp12.resid, fitcopy12, wcs12, '12_um')
+                
+                #Prompt user to accept image or redo
+                '''plt.pause(0.1)
+                check = input(
+                    'Please consult the residual image. Would you like to reuse? Type n to continue, anything else to redo:  '
+                    )
+                if check != 'n':
+                    plt.close('all')'''
+            
+            #while check != 'n':
+            while redo:
                 # 12 um image analysis
                 #reset global list coords that gets created in get_coords
                 print('######################################################')
@@ -1612,11 +1681,13 @@ while (k < YB2):
                           interp12.resid, fitcopy12, wcs12, '12_um')
     
                 #Prompt user to accept image or redo
-                plt.pause(1)
+                '''plt.pause(0.1)
                 check = input(
                     'Please consult the residual image. Would you like to redo? Type n to continue, anything else to redo:  '
                 )
                 if check != 'n':
+                    plt.close('all')'''
+                if not redo:
                     plt.close('all')
             plt.close('all')
             #flag12 = make_flags(workmask12, interp12.resid, '12')
@@ -1630,7 +1701,25 @@ while (k < YB2):
     
         if math.isnan(orig.min()) == False and math.isnan(orig.max()) == False:
             check = 'y'
-            while check != 'n':
+            #Reuse previous points
+            if coordinates != []:
+                interp8 = do_interp(workmask, coordinates)
+                diff8 = interp8.resid
+                #display and save the images for the 8um image
+                make_figs(workmask, interp8.blanked, interp8.interp, interp8.resid,
+                          fitcopy8, wcs8, '8_um')
+                
+                #Prompt user to accept image or redo
+                '''plt.pause(0.1)
+                check = input(
+                    'Please consult the residual image. Would you like to reuse? Type n to continue, anything else to redo:  '
+                    )
+                if check != 'n':
+                    plt.close('all')'''
+
+            
+            #while check != 'n':
+            while redo:
                 # 8 um image analysis
                 #reset global list coords that gets creaeted in get_coords
                 print('######################################################')
@@ -1656,11 +1745,13 @@ while (k < YB2):
                           fitcopy8, wcs8, '8_um')
     
                 #Prompt user to accept image or redo
-                plt.pause(1)
+                '''plt.pause(0.1)
                 check = input(
                     'Please consult the residual image. Would you like to redo? Type n to continue, anything else to redo:  '
                 )
                 if check != 'n':
+                    plt.close('all')'''
+                if not redo:
                     plt.close('all')
             plt.close('all')
             #flag8 = make_flags(workmask, interp8.resid, '8')
@@ -1671,7 +1762,7 @@ while (k < YB2):
             print('8 micron image is saturated.')
             coord8 = ' '
             flag8 = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    
+   
         ##############################################################################
         # Use residual images to perform photometry and write out to table with flags#
         ##############################################################################
