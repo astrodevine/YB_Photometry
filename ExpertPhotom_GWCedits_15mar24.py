@@ -9,7 +9,7 @@ the MWP location and radius
 '''
 
 import numpy as np
-import matplotlib
+#import matplotlib
 #matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
@@ -21,7 +21,7 @@ plt.ion()
 # the interactive plot
 from matplotlib.patches import Circle
 from matplotlib.colors import SymLogNorm
-from matplotlib.colors import LogNorm
+#from matplotlib.colors import LogNorm
 #import astropy.units as u
 from astropy.io import fits
 from astropy import wcs
@@ -259,7 +259,17 @@ def get_coords(img, imgw, wave, ybid):
     plt.close('all')
     #print(coords)
     return coords
+#Code to let the user choose to redo a plot using widgets
 
+def redo_yes(event):
+    global redo
+    redo = True
+    plt.close()
+
+def redo_no(event):
+    global redo
+    redo = False
+    plt.close()
 
 #generates and saves the four panel images to the folder photom_images
 #call with (image, masked image, interpolated image, resid)
@@ -1150,7 +1160,7 @@ class do_interp():
         x = goodvals[1]  # x values of finite coordinates
         y = goodvals[0]  # y values of finite coordinates
 
-       range_array = np.arange(x.size)
+        range_array = np.arange(x.size)
         fvals = np.zeros(x.size)
         for (i, xi, yi) in zip(range_array, x, y):
             fvals[i] = img[yi][xi]
@@ -1513,8 +1523,6 @@ while (YB1 < YB2):
                 plt.close('all')
             except(ValueError):
                 print("There was a problem with the 70 micron image.")
-                traceback.print_exc()
-                
                 coord70 = ' '
         else:
             print('70 micron image is saturated.')
@@ -1716,7 +1724,7 @@ while (YB1 < YB2):
                 #flag8 = make_flags(workmask8, interp8.resid, '8')
                 coord8 = str(coordinates)
                 plt.close('all')
-             except(ValueError):
+            except(ValueError):
                 print("There was a problem with the 8 micron image.")
                 coord8 = ' '
         else:
