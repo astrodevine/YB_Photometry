@@ -271,6 +271,11 @@ def redo_no(event):
     redo = False
     plt.close()
 
+def savequit(event):
+    global done
+    done = True
+    plt.close()
+            
 #generates and saves the four panel images to the folder photom_images
 #call with (image, masked image, interpolated image, resid)
 def make_figs(im1, im2, im3, im4, fitfile, imw, um):
@@ -322,28 +327,52 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
     plt.subplots_adjust(top=0.9)
     fig.suptitle('Interpolation of YB %s at ' % (YB) + um, fontsize=10)
 
-    #Add Widgets to let the user interact with the mouse
-    plt.subplots_adjust(bottom=0.2)  # Adjust the plot to make space for buttons
-
-    # Create buttons
-    ax_button_redo_yes = plt.axes([0.1, 0.05, 0.35, 0.075])
-    ax_button_redo_no = plt.axes([0.55, 0.05, 0.35, 0.075])
-
-    button_yes = Button(ax_button_redo_yes, 'redo')
-    button_no = Button(ax_button_redo_no, 'continue')
-
-    # Connect buttons to callback functions
-    button_yes.on_clicked(redo_yes)
-    button_no.on_clicked(redo_no)
-    
-    # Show the plot and block execution until the window is closed
-    #plt.show(block=True)
-    global redo
-    redo = None
-    plt.show()
-    # Wait for user to press a button
-    while redo is None:
-        plt.pause(0.1)
+    #add widgets to let the user interact with the mouse
+    if um == '8_um':
+        plt.subplots_adjust(bottom=0.3)  # Adjust the plot to make space for buttons
+        # Create buttons
+        ax_button_redo_yes = plt.axes([0.1, 0.15, 0.35, 0.075])
+        ax_button_redo_no = plt.axes([0.55, 0.15, 0.35, 0.075])
+        ax_button_quit = plt.axes([0.1, 0.05, 0.8, 0.075])
+        
+        button_yes = Button(ax_button_redo_yes, 'redo')
+        button_no = Button(ax_button_redo_no, 'continue')
+        button_quit = Button(ax_button_quit, 'Save and Quit')
+        
+        # Connect buttons to callback functions
+        button_yes.on_clicked(redo_yes)
+        button_no.on_clicked(redo_no)
+        button_quit.on_clicked(savequit)
+        
+        # Show the plot and block execution until the window is closed
+        #plt.show(block=True)
+        global redo
+        redo = None
+        plt.show()
+        # Wait for user to press a button
+        while redo is None and not done:
+            plt.pause(0.1)
+    else:
+        
+        plt.subplots_adjust(bottom=0.2)  # Adjust the plot to make space for buttons
+        # Create buttons
+        ax_button_redo_yes = plt.axes([0.1, 0.05, 0.35, 0.075])
+        ax_button_redo_no = plt.axes([0.55, 0.05, 0.35, 0.075])
+        
+        button_yes = Button(ax_button_redo_yes, 'redo')
+        button_no = Button(ax_button_redo_no, 'continue')
+        
+        # Connect buttons to callback functions
+        button_yes.on_clicked(redo_yes)
+        button_no.on_clicked(redo_no)
+        
+        # Show the plot and block execution until the window is closed
+        #plt.show(block=True)
+        redo = None
+        plt.show()
+        # Wait for user to press a button
+        while redo is None:
+            plt.pause(0.1)
     
     # Save this result as a new png
     figurename = os.path.join(path1,
@@ -489,8 +518,74 @@ class choose_image():
         #currently don't need the WCS files for 12, 24 um because they
         #are reprojections onto 8um coordinate grid
         #GWC added 'b' on 4/5/22. 
+        if l > 1.5 and l <= 4.5:
+            path8 = os.path.join(path,
+                                 'mosaics/GLM_00300+0000_mosaic_I4.fits')
+            path12 = os.path.join(path,
+                                  'mosaics/WISE_12um_00300_mosaic.fits')
+            path24 = os.path.join(
+                                   path,
+                                      'mosaics/MIPSGAL_24um_00300_mosaic.fits')
+            path70 = os.path.join(
+                                   path,
+                                       'mosaics/PACS_70um_00300_mosaic.fits')
+        elif l > 4.5 and l <= 7.5:
+            path8 = os.path.join(path,
+                                  'mosaics/GLM_00600+0000_mosaic_I4.fits')
+            path12 = os.path.join(path,
+                                   'mosaics/WISE_12um_00600_mosaic.fits')
+            path24 = os.path.join(
+                                    path,
+                                       'mosaics/MIPSGAL_24um_00600_mosaic.fits')
+            path70 = os.path.join(
+                                    path,
+                                        'mosaics/PACS_70um_00600_mosaic.fits')
+        elif l > 7.5 and l <= 10.5:
+            path8 = os.path.join(path,
+                                  'mosaics/GLM_00900+0000_mosaic_I4.fits')
+            path12 = os.path.join(path,
+                                   'mosaics/WISE_12um_00900_mosaic.fits')
+            path24 = os.path.join(
+                                    path,
+                                       'mosaics/MIPSGAL_24um_00900_mosaic.fits')
+            path70 = os.path.join(
+                                    path,
+                                        'mosaics/PACS_70um_00900_mosaic.fits')
+        elif l > 10.5 and l <= 13.5:
+            path8 = os.path.join(path,
+                                  'mosaics/GLM_01200+0000_mosaic_I4.fits')
+            path12 = os.path.join(path,
+                                   'mosaics/WISE_12um_01200_mosaic.fits')
+            path24 = os.path.join(
+                                    path,
+                                       'mosaics/MIPSGAL_24um_01200_mosaic.fits')
+            path70 = os.path.join(
+                                    path,
+                                        'mosaics/PACS_70um_01200_mosaic.fits')
+        elif l > 13.5 and l <= 16.5:
+            path8 = os.path.join(path,
+                                  'mosaics/GLM_01500+0000_mosaic_I4.fits')
+            path12 = os.path.join(path,
+                                   'mosaics/WISE_12um_01500_mosaic.fits')
+            path24 = os.path.join(
+                                    path,
+                                       'mosaics/MIPSGAL_24um_01500_mosaic.fits')
+            path70 = os.path.join(
+                                    path,
+                                        'mosaics/PACS_70um_01500_mosaic.fits')
+        elif l > 16.5 and l <= 19.5:
+            path8 = os.path.join(path,
+                                  'mosaics/GLM_01800+0000_mosaic_I4.fits')
+            path12 = os.path.join(path,
+                                   'mosaics/WISE_12um_01800_mosaic.fits')
+            path24 = os.path.join(
+                                    path,
+                                       'mosaics/MIPSGAL_24um_01800_mosaic.fits')
+            path70 = os.path.join(
+                                    path,
+                                        'mosaics/PACS_70um_01800_mosaic.fits')
         #Adding mosaics 021, 024, 027 on 10/17/23.
-        if l > 19.5 and l <= 22.5:
+        elif l > 19.5 and l <= 22.5:
             path8 = os.path.join(path,
                                  'mosaics/GLM_02100+0000_mosaic_I4.fits')
             path12 = os.path.join(path,
@@ -665,7 +760,114 @@ class choose_image():
                     'mosaics/MIPSGAL_24um_06600_mosaic.fits')
             path70 = os.path.join(
                     path,
-                    'mosaics/PACS_70um_06600_mosaic.fits')     
+                    'mosaics/PACS_70um_06600_mosaic.fits') 
+
+        # The following were added for Cyg-X by GW-C on 2/7/24.
+        elif l > 75.5 and l <= 76.5:
+            path8 = os.path.join(path,
+                                 'mosaics/CYGX_08um_07500+0050_mosaic.fits')
+            path12 = os.path.join(path,
+                                  'mosaics/CYGX_12um_07500+0050_mosaic.fits')
+            path24 = os.path.join(
+                path,
+                'mosaics/CYGX_24um_07500+0050_mosaic.fits')
+            path70 = os.path.join(
+                path,
+                'mosaics/CYGX_70um_07500+0050_mosaic.fits')
+        elif l > 76.5 and l <= 79.5 and b < 0.82:
+            path8 = os.path.join(path,
+                                 'mosaics/CYGX_08um_07800-0085_mosaic.fits')
+            path12 = os.path.join(path,
+                                  'mosaics/CYGX_12um_07800-0085_mosaic.fits')
+            path24 = os.path.join(
+                path,
+                'mosaics/CYGX_24um_07800-0085_mosaic.fits')
+            path70 = os.path.join(
+                path,
+                'mosaics/CYGX_70um_07800-0085_mosaic.fits')
+        elif l > 76.5 and l <= 79.5 and b >= 0.82:
+            path8 = os.path.join(path,
+                                 'mosaics/CYGX_08um_07800+0250_mosaic.fits')
+            path12 = os.path.join(path,
+                                  'mosaics/CYGX_12um_07800+0250_mosaic.fits')
+            path24 = os.path.join(
+                path,
+                'mosaics/CYGX_24um_07800+0250_mosaic.fits')
+            path70 = os.path.join(
+                path,
+                'mosaics/CYGX_70um_07800+0250_mosaic.fits')
+        elif l > 79.5 and l <= 82.5 and b < 0.82:
+            path8 = os.path.join(path,
+                                 'mosaics/CYGX_08um_08100-0070_mosaic.fits')
+            path12 = os.path.join(path,
+                                  'mosaics/CYGX_12um_08100-0070_mosaic.fits')
+            path24 = os.path.join(
+                path,
+                'mosaics/CYGX_24um_08100-0070_mosaic.fits')
+            path70 = os.path.join(
+                path,
+                'mosaics/CYGX_70um_08100-0070_mosaic.fits')
+        elif l > 79.5 and l <= 82.5 and b >= 0.82:
+            path8 = os.path.join(path,
+                                 'mosaics/CYGX_08um_08100+0235_mosaic.fits')
+            path12 = os.path.join(path,
+                                  'mosaics/CYGX_12um_08100+0235_mosaic.fits')
+            path24 = os.path.join(
+                path,
+                'mosaics/CYGX_24um_08100+0235_mosaic.fits')
+            path70 = os.path.join(
+                path,
+                'mosaics/CYGX_70um_08100+0235_mosaic.fits')
+        elif l > 82.5 and l <= 83.0:
+            path8 = os.path.join(path,
+                                 'mosaics/CYGX_08um_08400+0005_mosaic.fits')
+            path12 = os.path.join(path,
+                                  'mosaics/CYGX_12um_08400+0005_mosaic.fits')
+            path24 = os.path.join(
+                path,
+                'mosaics/CYGX_24um_08400+0005_mosaic.fits')
+            path70 = os.path.join(
+                path,
+                'mosaics/CYGX_70um_08400+0005_mosaic.fits')
+
+        #The following are for the SMOG region.  
+        #GWC: Something went wonky on 2/7/24 -- need to revisit how to cover SMOG.
+        elif l > 101.0 and l <= 105.59 and b < 3.06:
+            path8 = os.path.join(path,
+                                 'mosaics/SMOG_08um_10300_mosaic.fits')
+            path12 = os.path.join(path,
+                                  'mosaics/SMOG_12um_10300_mosaic.fits')
+            path24 = os.path.join(
+                path,
+                'mosaics/SMOG_24um_10300_mosaic.fits')
+            path70 = os.path.join(
+                path,
+                'mosaics/SMOG_PACS_70um_10300_mosaic.fits')
+            # Replaced 'mosaics/SMOG_70um_10300_mosaic.fits') with PACS on 7/7/23
+        elif l > 101.0 and l <= 105.59 and b >= 3.06:
+            path8 = os.path.join(path,
+                                 'mosaics/SMOG_08um_10300_mosaic.fits')
+            path12 = os.path.join(path,
+                                  'mosaics/SMOG_12um_10300_mosaic.fits')
+            path24 = os.path.join(
+                path,
+                'mosaics/SMOG_24um_10300_mosaic_high_b.fits')
+            path70 = os.path.join(
+                path,
+                'mosaics/SMOG_PACS_70um_10300_mosaic.fits')
+        elif l > 105.59 and l <= 110.2:
+            path8 = os.path.join(path,
+                                 'mosaics/SMOG_08um_10700_mosaic.fits')
+            path12 = os.path.join(path,
+                                  'mosaics/SMOG_12um_10700_mosaic.fits')
+            path24 = os.path.join(
+                path,
+                'mosaics/SMOG_24um_10700_mosaic.fits')
+            path70 = os.path.join(
+                path,
+                'mosaics/SMOG_PACS_70um_10700_mosaic.fits')
+            # Replaced 'mosaics/SMOG_70um_10700_mosaic.fits') with PACS on 7/7/23
+        
         elif l > 294.8 and l <= 295.5:
             path8 = os.path.join(path,
                                      'mosaics/GLM_29400+0000_mosaic_I4.fits')
@@ -923,176 +1125,6 @@ class choose_image():
             path70 = os.path.join(
                                    path,
                                        'mosaics/PACS_70um_00000_mosaic.fits')
-        elif l > 1.5 and l <= 4.5:
-            path8 = os.path.join(path,
-                                 'mosaics/GLM_00300+0000_mosaic_I4.fits')
-            path12 = os.path.join(path,
-                                  'mosaics/WISE_12um_00300_mosaic.fits')
-            path24 = os.path.join(
-                                   path,
-                                      'mosaics/MIPSGAL_24um_00300_mosaic.fits')
-            path70 = os.path.join(
-                                   path,
-                                       'mosaics/PACS_70um_00300_mosaic.fits')
-        elif l > 4.5 and l <= 7.5:
-            path8 = os.path.join(path,
-                                  'mosaics/GLM_00600+0000_mosaic_I4.fits')
-            path12 = os.path.join(path,
-                                   'mosaics/WISE_12um_00600_mosaic.fits')
-            path24 = os.path.join(
-                                    path,
-                                       'mosaics/MIPSGAL_24um_00600_mosaic.fits')
-            path70 = os.path.join(
-                                    path,
-                                        'mosaics/PACS_70um_00600_mosaic.fits')
-        elif l > 7.5 and l <= 10.5:
-            path8 = os.path.join(path,
-                                  'mosaics/GLM_00900+0000_mosaic_I4.fits')
-            path12 = os.path.join(path,
-                                   'mosaics/WISE_12um_00900_mosaic.fits')
-            path24 = os.path.join(
-                                    path,
-                                       'mosaics/MIPSGAL_24um_00900_mosaic.fits')
-            path70 = os.path.join(
-                                    path,
-                                        'mosaics/PACS_70um_00900_mosaic.fits')
-        elif l > 10.5 and l <= 13.5:
-            path8 = os.path.join(path,
-                                  'mosaics/GLM_01200+0000_mosaic_I4.fits')
-            path12 = os.path.join(path,
-                                   'mosaics/WISE_12um_01200_mosaic.fits')
-            path24 = os.path.join(
-                                    path,
-                                       'mosaics/MIPSGAL_24um_01200_mosaic.fits')
-            path70 = os.path.join(
-                                    path,
-                                        'mosaics/PACS_70um_01200_mosaic.fits')
-        elif l > 13.5 and l <= 16.5:
-            path8 = os.path.join(path,
-                                  'mosaics/GLM_01500+0000_mosaic_I4.fits')
-            path12 = os.path.join(path,
-                                   'mosaics/WISE_12um_01500_mosaic.fits')
-            path24 = os.path.join(
-                                    path,
-                                       'mosaics/MIPSGAL_24um_01500_mosaic.fits')
-            path70 = os.path.join(
-                                    path,
-                                        'mosaics/PACS_70um_01500_mosaic.fits')
-        elif l > 16.5 and l <= 19.5:
-            path8 = os.path.join(path,
-                                  'mosaics/GLM_01800+0000_mosaic_I4.fits')
-            path12 = os.path.join(path,
-                                   'mosaics/WISE_12um_01800_mosaic.fits')
-            path24 = os.path.join(
-                                    path,
-                                       'mosaics/MIPSGAL_24um_01800_mosaic.fits')
-            path70 = os.path.join(
-                                    path,
-                                        'mosaics/PACS_70um_01800_mosaic.fits')
-        #The following are for the SMOG region.  
-        #GWC: Something went wonky on 2/7/24 -- need to revisit how to cover SMOG.
-        elif l > 101.0 and l <= 105.59 and b < 3.06:
-            path8 = os.path.join(path,
-                                 'mosaics/SMOG_08um_10300_mosaic.fits')
-            path12 = os.path.join(path,
-                                  'mosaics/SMOG_12um_10300_mosaic.fits')
-            path24 = os.path.join(
-                path,
-                'mosaics/SMOG_24um_10300_mosaic.fits')
-            path70 = os.path.join(
-                path,
-                'mosaics/SMOG_PACS_70um_10300_mosaic.fits')
-            # Replaced 'mosaics/SMOG_70um_10300_mosaic.fits') with PACS on 7/7/23
-        elif l > 101.0 and l <= 105.59 and b >= 3.06:
-            path8 = os.path.join(path,
-                                 'mosaics/SMOG_08um_10300_mosaic.fits')
-            path12 = os.path.join(path,
-                                  'mosaics/SMOG_12um_10300_mosaic.fits')
-            path24 = os.path.join(
-                path,
-                'mosaics/SMOG_24um_10300_mosaic_high_b.fits')
-            path70 = os.path.join(
-                path,
-                'mosaics/SMOG_PACS_70um_10300_mosaic.fits')
-        elif l > 105.59 and l <= 110.2:
-            path8 = os.path.join(path,
-                                 'mosaics/SMOG_08um_10700_mosaic.fits')
-            path12 = os.path.join(path,
-                                  'mosaics/SMOG_12um_10700_mosaic.fits')
-            path24 = os.path.join(
-                path,
-                'mosaics/SMOG_24um_10700_mosaic.fits')
-            path70 = os.path.join(
-                path,
-                'mosaics/SMOG_PACS_70um_10700_mosaic.fits')
-            # Replaced 'mosaics/SMOG_70um_10700_mosaic.fits') with PACS on 7/7/23
-        # The following were added for Cyg-X by GW-C on 2/7/24.
-        elif l > 75.5 and l <= 76.5:
-            path8 = os.path.join(path,
-                                 'mosaics/CYGX_08um_07500+0050_mosaic.fits')
-            path12 = os.path.join(path,
-                                  'mosaics/CYGX_12um_07500+0050_mosaic.fits')
-            path24 = os.path.join(
-                path,
-                'mosaics/CYGX_24um_07500+0050_mosaic.fits')
-            path70 = os.path.join(
-                path,
-                'mosaics/CYGX_70um_07500+0050_mosaic.fits')
-        elif l > 76.5 and l <= 79.5 and b < 0.82:
-            path8 = os.path.join(path,
-                                 'mosaics/CYGX_08um_07800-0085_mosaic.fits')
-            path12 = os.path.join(path,
-                                  'mosaics/CYGX_12um_07800-0085_mosaic.fits')
-            path24 = os.path.join(
-                path,
-                'mosaics/CYGX_24um_07800-0085_mosaic.fits')
-            path70 = os.path.join(
-                path,
-                'mosaics/CYGX_70um_07800-0085_mosaic.fits')
-        elif l > 76.5 and l <= 79.5 and b >= 0.82:
-            path8 = os.path.join(path,
-                                 'mosaics/CYGX_08um_07800+0250_mosaic.fits')
-            path12 = os.path.join(path,
-                                  'mosaics/CYGX_12um_07800+0250_mosaic.fits')
-            path24 = os.path.join(
-                path,
-                'mosaics/CYGX_24um_07800+0250_mosaic.fits')
-            path70 = os.path.join(
-                path,
-                'mosaics/CYGX_70um_07800+0250_mosaic.fits')
-        elif l > 79.5 and l <= 82.5 and b < 0.82:
-            path8 = os.path.join(path,
-                                 'mosaics/CYGX_08um_08100-0070_mosaic.fits')
-            path12 = os.path.join(path,
-                                  'mosaics/CYGX_12um_08100-0070_mosaic.fits')
-            path24 = os.path.join(
-                path,
-                'mosaics/CYGX_24um_08100-0070_mosaic.fits')
-            path70 = os.path.join(
-                path,
-                'mosaics/CYGX_70um_08100-0070_mosaic.fits')
-        elif l > 79.5 and l <= 82.5 and b >= 0.82:
-            path8 = os.path.join(path,
-                                 'mosaics/CYGX_08um_08100+0235_mosaic.fits')
-            path12 = os.path.join(path,
-                                  'mosaics/CYGX_12um_08100+0235_mosaic.fits')
-            path24 = os.path.join(
-                path,
-                'mosaics/CYGX_24um_08100+0235_mosaic.fits')
-            path70 = os.path.join(
-                path,
-                'mosaics/CYGX_70um_08100+0235_mosaic.fits')
-        elif l > 82.5 and l <= 83.0:
-            path8 = os.path.join(path,
-                                 'mosaics/CYGX_08um_08400+0005_mosaic.fits')
-            path12 = os.path.join(path,
-                                  'mosaics/CYGX_12um_08400+0005_mosaic.fits')
-            path24 = os.path.join(
-                path,
-                'mosaics/CYGX_24um_08400+0005_mosaic.fits')
-            path70 = os.path.join(
-                path,
-                'mosaics/CYGX_70um_08400+0005_mosaic.fits')
         else:
             # GWC revised print statement from "outside the pilot..."
             print('Your YB is outside the region.')
@@ -1254,13 +1286,12 @@ headers = [
     ]
 
 row2 = [
-    'ID Number', 'degree', 'degree'] + ['pixel coords']*4 + ['Jy']*4 + [
-    'Saturated', 'Multiple sources within YB', 'No obvious source at this wavelength',
-    'Star/Diffraction Pattern', 'Poor Confidence', 'Other/Follow Up']*3 +[
+    'ID Number', 'degree', 'degree'] + ['pixel coords']*4 +['Jy',
     'Saturated', 'Multiple sources within YB', 'Filament or Bubble Rim',
     'No obvious source at this wavelength', 'IRDC Association',
-    'Star/Diffraction Pattern', 'Poor Confidence', 'Other/Follow Up'
-    ]
+    'Star/Diffraction Pattern', 'Poor Confidence', 'Other/Follow Up'] + ['Jy',
+    'Saturated', 'Multiple sources within YB', 'No obvious source at this wavelength',
+    'Star/Diffraction Pattern', 'Poor Confidence', 'Other/Follow Up']*3 
 
 if os.path.exists(out_name) == False:
     #append_write = 'a'  # append if already exists
@@ -1330,9 +1361,10 @@ else:
 
 YB1 = int(YBfirst)
 YB2 = int(YBlast)
+done = False
 #k = YB1
 #currentYB = YB1
-while (YB1 < YB2):
+while (YB1 < YB2) and not done:
     #get the YB's location and radius
     YB = data[YB1]['YB']
     YB_long = data[YB1]['l']
@@ -1473,7 +1505,7 @@ while (YB1 < YB2):
     ###################################################################
     try:
         if ~np.isnan(orig70.min()) and ~np.isnan(orig70.max()):
-            check = 'y'
+            #check = 'y'
             redo = True
             print('######################################################')
             try:
@@ -1515,8 +1547,6 @@ while (YB1 < YB2):
                     )
                     if check != 'n':
                         plt.close('all')'''
-                    if not redo:
-                        plt.close('all')
                 plt.close('all')
                 #flag70 = make_flags(workmask70, interp70.resid, '70') 
                 coord70 = str(coordinates)
@@ -1530,7 +1560,7 @@ while (YB1 < YB2):
             flag70[0] = 1
     
         if ~np.isnan(orig24.min()) and ~np.isnan(orig24.max()):
-            check = 'y'
+            #check = 'y'
             print('######################################################')
             try:
                 if coordinates != []:
@@ -1584,8 +1614,6 @@ while (YB1 < YB2):
                     )
                     if check != 'n':
                         plt.close('all')'''
-                    if not redo:
-                        plt.close('all')
                 plt.close('all')
                 #flag24 = make_flags(workmask24, interp24.resid, '24')
                 coord24 = str(coordinates)
@@ -1599,7 +1627,7 @@ while (YB1 < YB2):
             flag24[0] = 1
     
         if ~np.isnan(orig12.min()) and ~np.isnan(orig12.max()):
-            check = 'y'
+            #check = 'y'
             print('######################################################')
             try:
                 #Reuse previous points
@@ -1651,8 +1679,6 @@ while (YB1 < YB2):
                     )
                     if check != 'n':
                         plt.close('all')'''
-                    if not redo:
-                        plt.close('all')
                 plt.close('all')
                 #flag12 = make_flags(workmask12, interp12.resid, '12')
                 coord12 = str(coordinates)
@@ -1666,7 +1692,7 @@ while (YB1 < YB2):
             flag12[0] = 1
     
         if ~np.isnan(orig8.min()) and ~np.isnan(orig8.max()):
-            check = 'y'
+            #check = 'y'
             print('######################################################')
             try:
                 #Reuse previous points
@@ -1718,8 +1744,6 @@ while (YB1 < YB2):
                     )
                     if check != 'n':
                         plt.close('all')'''
-                    if not redo:
-                        plt.close('all')
                 plt.close('all')
                 #flag8 = make_flags(workmask8, interp8.resid, '8')
                 coord8 = str(coordinates)
@@ -1798,26 +1822,33 @@ while (YB1 < YB2):
         pickle_out = open("leftYB.pickle", "wb")
         pickle.dump(YB1, pickle_out)
         pickle_out.close()
-        if YB1 < YB2:
+        #if YB1 < YB2:
             #Allow the user to safely exit the program between YBs
-            cont = input(
-                "Would you like to continue? Type 'y' for yes or anything else for no: "
-            )
-            if cont == 'y':
-                print('Okay! Continuing photometry...')
-            else:
-                print('Goodbye! See you next time!')
+            #cont = input(
+                #"Would you like to continue? Type 'y' for yes or anything else for no: "
+            #)
+            #if cont == 'y':
+                #print('Okay! Continuing photometry...')
+            #else:
+                #print('Goodbye! See you next time!')
                 #Save current YB, so the user can pick up from here next time they run the program
-                pickle_out = open("leftYB.pickle", "wb")
-                pickle.dump(YB1, pickle_out)
-                pickle_out.close()
-                sys.exit()
+                #pickle_out = open("leftYB.pickle", "wb")
+                #pickle.dump(YB1, pickle_out)
+                #pickle_out.close()
+                #sys.exit()
     except(ValueError):
         YB1 += 1
         #currentYB = currentYB + 1
         pickle_out = open("leftYB.pickle", "wb")
         pickle.dump(YB1, pickle_out)
         pickle_out.close()
+    if done:
+        print('Goodbye! See you next time!')
+        #Save current YB, so the user can pick up from here next time they run the program
+        pickle_out = open("leftYB.pickle", "wb")
+        pickle.dump(YB1, pickle_out)
+        pickle_out.close()
+        sys.exit()
 plt.close('all')
 print(
     'Congratulations! You have completed the photometry for all the YBs in your range!'
