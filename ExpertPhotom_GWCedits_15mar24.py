@@ -100,7 +100,7 @@ path1 = '.'
 image_name = os.path.join(path, 'GLM_03000+0000_mosaic_I4.fits')
 catalog_name = os.path.join(path, 'USE_THIS_CATALOG_ybcat_MWP_with_ID.csv')
 #out_name = os.path.join(path1, 'YBphotometry_results.csv')
-instID = 'coletest' #Change to be your ID
+instID = 'WolfChase1' #Change to be your ID
 out_name = os.path.join(path, 'YBphotometry_results_' + instID + '.csv')
 
 ######################################################
@@ -1341,9 +1341,9 @@ if os.path.exists(out_name) == False:
 ######################################################
 
 #Set Pre-chosen range
-BegYB = 2478
+BegYB = 3028
 
-YBlast = 3000
+YBlast = 3034
 
 #Set linear threshold of the SymLogNorm
 LinearThreshold = 0.001
