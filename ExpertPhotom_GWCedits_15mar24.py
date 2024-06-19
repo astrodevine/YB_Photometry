@@ -100,7 +100,7 @@ path1 = '.'
 image_name = os.path.join(path, 'GLM_03000+0000_mosaic_I4.fits')
 catalog_name = os.path.join(path, 'USE_THIS_CATALOG_ybcat_MWP_with_ID.csv')
 #out_name = os.path.join(path1, 'YBphotometry_results.csv')
-instID = 'WolfChase1' #Change to be your ID
+instID = 'coletest' #Change to be your ID
 out_name = os.path.join(path, 'YBphotometry_results_' + instID + '.csv')
 
 ######################################################
@@ -283,11 +283,11 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
     ############Generate the figures for each source##################
     #note I'm being lazy here and calling from the code things that aren't defined in function
     #this is pretty ugly and should maybe get cleaned up
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(8, 12))
 
     #Plot the original image and MWP User YB circle
     circle = Circle((dxw, dyw), YB_rad_pix, fill=False)
-    fig1 = plt.subplot(2, 2, 1, title='Cropped image', projection=imw)
+    fig1 = plt.subplot(3, 2, 1, title='Cropped image', projection=imw)
     plt.imshow(im1, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
     plt.axis('off')
     #plt.xlabel('Longitude')
@@ -302,21 +302,21 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
               #weight='bold')
 
     #Plot the mask
-    plt.subplot(2, 2, 2, title='Masked Image', projection=imw)
+    plt.subplot(3, 2, 2, title='Masked Image', projection=imw)
     plt.imshow(im2, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
     plt.axis('off')
     #plt.xlabel('Longitude')
     #plt.ylabel('Latitude')
 
     #Plot the interpolated background
-    plt.subplot(2, 2, 3, title='Interpolated image', projection=imw)
+    plt.subplot(3, 2, 3, title='Interpolated image', projection=imw)
     plt.imshow(im3, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
     plt.axis('off')
     #plt.xlabel('Longitude')
     #plt.ylabel('Latitude')
 
     #Plot the residual
-    plt.subplot(2, 2, 4, title='Residual(Image-Interp)', projection=imw)
+    plt.subplot(3, 2, 4, title='Residual(Image-Interp)', projection=imw)
     plt.imshow(im4, cmap='hot')
     plt.axis('off')
     #plt.xlabel('Longitude')
@@ -329,11 +329,12 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
 
     #add widgets to let the user interact with the mouse
     if um == '8_um':
-        plt.subplots_adjust(bottom=0.3)  # Adjust the plot to make space for buttons
+        # Adjust the plot to make space for buttons
         # Create buttons
-        ax_button_redo_yes = plt.axes([0.1, 0.15, 0.35, 0.075])
-        ax_button_redo_no = plt.axes([0.55, 0.15, 0.35, 0.075])
-        ax_button_quit = plt.axes([0.1, 0.05, 0.8, 0.075])
+        ax_button_redo_yes = plt.axes([0.0125, 0.125, 0.4375, 0.075])
+        ax_button_redo_no = plt.axes([0.55, 0.125, 0.4375, 0.075])
+        ax_button_quit = plt.axes([0.0125, 0.025, .975, 0.075])
+        plt.subplots_adjust(bottom=-.15)
         
         button_yes = Button(ax_button_redo_yes, 'redo')
         button_no = Button(ax_button_redo_no, 'continue')
@@ -354,10 +355,11 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
             plt.pause(0.1)
     else:
         
-        plt.subplots_adjust(bottom=0.2)  # Adjust the plot to make space for buttons
+        # Adjust the plot to make space for buttons
         # Create buttons
-        ax_button_redo_yes = plt.axes([0.1, 0.05, 0.35, 0.075])
-        ax_button_redo_no = plt.axes([0.55, 0.05, 0.35, 0.075])
+        ax_button_redo_yes = plt.axes([0.0125, 0.125, 0.4375, 0.075])
+        ax_button_redo_no = plt.axes([0.55, 0.125, 0.4375, 0.075])
+        plt.subplots_adjust(bottom=-0.15)
         
         button_yes = Button(ax_button_redo_yes, 'redo')
         button_no = Button(ax_button_redo_no, 'continue')
@@ -1339,9 +1341,9 @@ if os.path.exists(out_name) == False:
 ######################################################
 
 #Set Pre-chosen range
-BegYB = 3028
+BegYB = 2478
 
-YBlast = 3034
+YBlast = 3000
 
 #Set linear threshold of the SymLogNorm
 LinearThreshold = 0.001
@@ -1503,10 +1505,12 @@ while (YB1 < YB2) and not done:
     ###################################################################
     # Call the classes to draw polygons and perform interpolation     #
     ###################################################################
+    
+    redo = True
+    
     try:
         if ~np.isnan(orig70.min()) and ~np.isnan(orig70.max()):
             #check = 'y'
-            redo = True
             print('######################################################')
             try:
                 #while check != 'n':
@@ -1563,7 +1567,7 @@ while (YB1 < YB2) and not done:
             #check = 'y'
             print('######################################################')
             try:
-                if coordinates != []:
+                if ~np.isnan(orig70.min()) and ~np.isnan(orig70.max()):
                     #Reuse previous points
                     interp24 = do_interp(workmask24, coordinates)
                     diff24 = interp24.resid
@@ -1631,7 +1635,7 @@ while (YB1 < YB2) and not done:
             print('######################################################')
             try:
                 #Reuse previous points
-                if coordinates != []:
+                if (~np.isnan(orig70.min()) and ~np.isnan(orig70.max())) or (~np.isnan(orig24.min()) and ~np.isnan(orig24.max())):
                     #do the masking and interpolation on 12um image
                     interp12 = do_interp(workmask12, coordinates)
                     diff12 = interp12.resid
@@ -1696,7 +1700,7 @@ while (YB1 < YB2) and not done:
             print('######################################################')
             try:
                 #Reuse previous points
-                if coordinates != []:
+                if (~np.isnan(orig70.min()) and ~np.isnan(orig70.max())) or (~np.isnan(orig24.min()) and ~np.isnan(orig24.max())) or (~np.isnan(orig12.min()) and ~np.isnan(orig12.max())):
                     interp8 = do_interp(workmask8, coordinates)
                     diff8 = interp8.resid
                     #display and save the images for the 8um image
