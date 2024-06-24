@@ -126,7 +126,7 @@ def get_coords(img, imgw, wave, ybid):
     circle3 = Circle((dxw, dyw), YB_rad_pix, fill=False)
     circle4 = Circle((dxw, dyw), YB_rad_pix, fill=False)
 
-    clkfig = plt.figure(figsize=(18, 27))
+    clkfig = plt.figure(figsize = (18, 27))
 
     # Create a df of plottable points from YBloc
     plotloc = []
@@ -134,7 +134,7 @@ def get_coords(img, imgw, wave, ybid):
         if 0 <  abs(YBloc['l'][i] - YB_long_pix) < dxw and 0 < abs(YBloc['b'][i] - YB_lat_pix) < dyw:
             plotloc.append((YBloc['l'][i] - YB_long_pix + dxw, 
                             YBloc['b'][i] - YB_lat_pix + dyw, 
-                            YBloc['r'][i])),
+                            YBloc['r'][i]))
 
     #Plot rg image,
     axrg = plt.subplot(2, 4, 1, title='RG (24 + 8 um)', projection=imgw)
@@ -161,68 +161,56 @@ def get_coords(img, imgw, wave, ybid):
     plt.imshow(img, cmap='gray', norm=SymLogNorm(linthresh= LinearThreshold))
 
     #Plot the 70 um
+    fee = plt.subplot(2, 4, 5, title='70 um', projection=imgw)
+    plt.axis('off')
     if ~np.isnan(orig70.min()) and ~np.isnan(orig70.max()):
-        fee = plt.subplot(2, 4, 5, title='70 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig70,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig70.min(), vmax=orig70.max()))
-        fee.add_artist(circle1)
     else:
-        fee = plt.subplot(2, 4, 5, title='70 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig70,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
-        fee.add_artist(circle1)
+    fee.add_artist(circle1)
 
     #Plot the 24 um
+    foo = plt.subplot(2, 4, 6, title='24 um', projection=imgw)
+    plt.axis('off')
     if ~np.isnan(orig24.min()) and ~np.isnan(orig24.max()):
-        foo = plt.subplot(2, 4, 6, title='24 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig24,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig24.min(), vmax=orig24.max()))
-        foo.add_artist(circle2)
     else:
-        foo = plt.subplot(2, 4, 6, title='24 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig24,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
-        foo.add_artist(circle2)
+    foo.add_artist(circle2)
         
     #Plot the 12 um
+    faa = plt.subplot(2, 4, 7, title='12 um', projection=imgw)
+    plt.axis('off')
     if ~np.isnan(orig12.min()) and ~np.isnan(orig12.max()):
-        faa = plt.subplot(2, 4, 7, title='12 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig12,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig12.min(), vmax=orig12.max()))
-        faa.add_artist(circle3)
     else:
-        faa = plt.subplot(2, 4, 7, title='12 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig12,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
-        faa.add_artist(circle3)
+    faa.add_artist(circle3)
 
     #Plot the 8um
+    fum = plt.subplot(2, 4, 8, title='8 um', projection=imgw)
+    plt.axis('off')
     if ~np.isnan(orig8.min()) and ~np.isnan(orig8.max()):
-        fum = plt.subplot(2, 4, 8, title='8 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig8,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig8.min(), vmax=orig8.max()))
-        fum.add_artist(circle4)
     else:
-        fum = plt.subplot(2, 4, 8, title='8 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig8,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
-        fum.add_artist(circle4)
+    fum.add_artist(circle4)
     #cbar = plt.colorbar(format='%05.2f')
     #cbar.set_norm(mynormalize.MyNormalize(vmin=orig.min(),vmax=orig.max(),stretch='linear'))
     #cbar = mycolorbar.DraggableColorbar(cbar,orig)
@@ -284,43 +272,40 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
     #note I'm being lazy here and calling from the code things that aren't defined in function
     #this is pretty ugly and should maybe get cleaned up
     fig = plt.figure(figsize=(8, 12))
+    
+    index = umlist.index(um)
 
     #Plot the original image and MWP User YB circle
     circle = Circle((dxw, dyw), YB_rad_pix, fill=False)
+    
     fig1 = plt.subplot(3, 2, 1, title='Cropped image', projection=imw)
-    plt.imshow(im1, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    if ~np.isnan(origlist[index].min()) and ~np.isnan(origlist[index].max()):
+        plt.imshow(im1, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    else:
+        plt.imshow(im1, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold))
     plt.axis('off')
-    #plt.xlabel('Longitude')
-    #plt.ylabel('Latitude')
     fig1.add_artist(circle)
-    #fig1.text(dxw / 2,
-              #dyw / 2 - 5,
-              #'MWP size',
-              #color='white',
-              #ha='center',
-              #va='top',
-              #weight='bold')
 
     #Plot the mask
     plt.subplot(3, 2, 2, title='Masked Image', projection=imw)
-    plt.imshow(im2, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    if ~np.isnan(origlist[index].min()) and ~np.isnan(origlist[index].max()):
+        plt.imshow(im2, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    else:
+        plt.imshow(im2, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold))
     plt.axis('off')
-    #plt.xlabel('Longitude')
-    #plt.ylabel('Latitude')
 
     #Plot the interpolated background
     plt.subplot(3, 2, 3, title='Interpolated image', projection=imw)
-    plt.imshow(im3, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    if ~np.isnan(origlist[index].min()) and ~np.isnan(origlist[index].max()):
+        plt.imshow(im3, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    else:
+        plt.imshow(im3, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold))
     plt.axis('off')
-    #plt.xlabel('Longitude')
-    #plt.ylabel('Latitude')
-
+    
     #Plot the residual
     plt.subplot(3, 2, 4, title='Residual(Image-Interp)', projection=imw)
     plt.imshow(im4, cmap='hot')
     plt.axis('off')
-    #plt.xlabel('Longitude')
-    #plt.ylabel('Latitude')
 
     #Make the plots pretty
     plt.tight_layout(pad=0.2, w_pad=5, h_pad=6)
@@ -1163,18 +1148,18 @@ class do_interp():
         ymin = min(xyvals[:, 1]) - 5
         ymax = max(xyvals[:, 1]) + 5
         #print(xmin, xmax, ymin, ymax)
-    
+        
         # OOB bug fix
         if xmin < 0:
             print('Too small of x values, please click closer to the center')
             print('interpolation will be done with the closest safest value')
             xmin = 0
-        
+
         if ymin < 0:
             print('Too small of y values, please click closer to the center')
             print('interpolation will be done with the closest safest value')
             ymin = 0
-        
+
         mask = np.zeros_like(img)
         inverse_mask = np.zeros_like(img)
         #region_mask = np.zeros_like(img)
@@ -1234,9 +1219,11 @@ class do_interp():
         #fnew_2D = make_2D(fnew, xnew, ynew, img)
         interp = img * region_mask + fnew_2D * inverse_mask
         self.interp = interp
-
+        
         #generate the residual image (original - interpolated background)
-        self.resid = img - interp
+        resid = img - interp
+        np.nan_to_num(resid, copy=False)
+        self.resid = resid
 
 
 #class that gets the flux from residual images. Unit conversions are applied here.
@@ -1454,6 +1441,8 @@ while (YB1 < YB2) and not done:
     #use Cutout2D to make the zoomed windows
     position = (xw, yw)
     size = (2 * dxw, 2 * dyw)
+    #smaller size of window when checking for saturation
+    size2 = ((YB_rad_pix * 2) + 20, (YB_rad_pix * 2) + 20)
 
     cut8 = Cutout2D(data=image.um8data,
                     position=position,
@@ -1470,6 +1459,24 @@ while (YB1 < YB2) and not done:
     cut70 = Cutout2D(data=image.um70data,
                      position=position,
                      size=size,
+                     wcs=image.um70w)
+    
+    #smaller cutouts to check for saturation only w/in 10 pixels of the YB
+    cut8b = Cutout2D(data=image.um8data,
+                    position=position,
+                    size=size2,
+                    wcs=image.um8w)
+    cut12b = Cutout2D(data=image.um12data,
+                     position=position,
+                     size=size2,
+                     wcs=image.um12w)
+    cut24b = Cutout2D(data=image.um24data,
+                     position=position,
+                     size=size2,
+                     wcs=image.um24w)
+    cut70b = Cutout2D(data=image.um70data,
+                     position=position,
+                     size=size2,
                      wcs=image.um70w)
 
     fitcopy8 = image.um8
@@ -1492,6 +1499,13 @@ while (YB1 < YB2) and not done:
     orig12 = cut12.data
     orig24 = cut24.data
     orig70 = cut70.data
+    origlist = [orig70, orig24, orig12, orig8]
+    
+    #orig images from the small cutouts
+    orig8b = cut8b.data
+    orig12b = cut12b.data
+    orig24b = cut24b.data
+    orig70b = cut70b.data
 
     wcs8 = cut8.wcs
     wcs12 = cut12.wcs
@@ -1508,6 +1522,8 @@ while (YB1 < YB2) and not done:
     flag24 = [0]*6
     flag12 = [0]*6
     flag8 = [0]*8
+    
+    umlist = ['70_um', '24_um', '12_um', '8_um']
 
     #create copies of cropped images called workmasks
     workmask8 = copy.deepcopy(orig8)
@@ -1519,9 +1535,9 @@ while (YB1 < YB2) and not done:
     ###################################################################
     
     redo = True
-    
+
     try:
-        if ~np.isnan(orig70.min()) and ~np.isnan(orig70.max()):
+        if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max()):
             #check = 'y'
             print('######################################################')
             try:
@@ -1544,9 +1560,9 @@ while (YB1 < YB2) and not done:
                         pickle_out.close()
                         sys.exit()
         
-                    print('got coords')
+                    #print('got coords')
                     #do the masking and interpolation on 70um image
-                    print('starting interp')
+                    #print('starting interp')
                     
                     
                     
@@ -1575,11 +1591,11 @@ while (YB1 < YB2) and not done:
             coord70 = ' '
             flag70[0] = 1
     
-        if ~np.isnan(orig24.min()) and ~np.isnan(orig24.max()):
+        if ~np.isnan(orig24b.min()) and ~np.isnan(orig24b.max()):
             #check = 'y'
             print('######################################################')
             try:
-                if ~np.isnan(orig70.min()) and ~np.isnan(orig70.max()):
+                if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max()):
                     #Reuse previous points
                     interp24 = do_interp(workmask24, coordinates)
                     diff24 = interp24.resid
@@ -1614,9 +1630,9 @@ while (YB1 < YB2) and not done:
                         pickle_out.close()
                         sys.exit()
         
-                    print('got coords')
+                    #print('got coords')
                     #do the masking and interpolation on 24um image
-                    print('starting interp')
+                    #print('starting interp')
                     interp24 = do_interp(workmask24, coordinates)
                     diff24 = interp24.resid
                     #display and save the images for the 24um image
@@ -1642,12 +1658,12 @@ while (YB1 < YB2) and not done:
             coord24 = ' '
             flag24[0] = 1
     
-        if ~np.isnan(orig12.min()) and ~np.isnan(orig12.max()):
+        if ~np.isnan(orig12b.min()) and ~np.isnan(orig12b.max()):
             #check = 'y'
             print('######################################################')
             try:
                 #Reuse previous points
-                if (~np.isnan(orig70.min()) and ~np.isnan(orig70.max())) or (~np.isnan(orig24.min()) and ~np.isnan(orig24.max())):
+                if (~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max())) or (~np.isnan(orig24b.min()) and ~np.isnan(orig24b.max())):
                     #do the masking and interpolation on 12um image
                     interp12 = do_interp(workmask12, coordinates)
                     diff12 = interp12.resid
@@ -1707,12 +1723,12 @@ while (YB1 < YB2) and not done:
             coord12 = ' '
             flag12[0] = 1
     
-        if ~np.isnan(orig8.min()) and ~np.isnan(orig8.max()):
+        if ~np.isnan(orig8b.min()) and ~np.isnan(orig8b.max()):
             #check = 'y'
             print('######################################################')
             try:
                 #Reuse previous points
-                if (~np.isnan(orig70.min()) and ~np.isnan(orig70.max())) or (~np.isnan(orig24.min()) and ~np.isnan(orig24.max())) or (~np.isnan(orig12.min()) and ~np.isnan(orig12.max())):
+                if (~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max())) or (~np.isnan(orig24b.min()) and ~np.isnan(orig24b.max())) or (~np.isnan(orig12b.min()) and ~np.isnan(orig12.max())):
                     interp8 = do_interp(workmask8, coordinates)
                     diff8 = interp8.resid
                     #display and save the images for the 8um image
