@@ -1279,40 +1279,20 @@ data = ascii.read(catalog_name, delimiter=',')
 
 headers = [
     'YB', 'YB_long', 'YB_lat', 'vertices 8', 'vertices 12', 'vertices 24',
-    'vertices 70', '8umphotom', '8flag1', '8flag2', '8flag3', '8flag4',
-    '8flag5', '8flag6', '8flag7', '8flag8', '12umphotom', '12flag1', '12flag2', '12flag4',
-    '12flag6', '12flag7', '12flag8', '24umphotom', '24flag1', '24flag2', '24flag4', '24flag6',
-    '24flag7', '24flag8', '70umphotom', '70flag1', '70flag2', '70flag4', '70flag6', '70flag7',
-    '70flag8'
+    'vertices 70', '8umphotom', '12umphotom', '24umphotom', '70umphotom', 
+    '8flag1', '12flag1', '24flag1', '70flag1', 'flag2', '8flag3', '12flag3',
+    '24flag3', '70flag3', '8flag4', '12flag4', '24flag4', '70flag4'
     ]
 
 row2 = [
-    'ID Number', 'degree', 'degree'] + ['pixel coords']*4 +['Jy',
-    'Saturated', 'Multiple sources within YB', 'Filament or Bubble Rim',
-    'No obvious source at this wavelength', 'IRDC Association',
-    'Star/Diffraction Pattern', 'Poor Confidence', 'Other/Follow Up'] + ['Jy',
-    'Saturated', 'Multiple sources within YB', 'No obvious source at this wavelength',
-    'Star/Diffraction Pattern', 'Poor Confidence', 'Other/Follow Up']*3 
+    'ID Number', 'degree', 'degree'] + ['pixel coords']*4 + ['Jy']*4 + [
+        'Saturated']*4 + ['Multiple Sources'] + ['No Obvious Source']*4 +[
+            'Poor Confidence']*4
 
+#if the file doesn't already exist, write it
 if os.path.exists(out_name) == False:
-    #append_write = 'a'  # append if already exists
-    #output_file = open(out_name,
-                       #append_write)  #####opens up files for creating csv file
-    #headers = [
-        #'YB', 'YB_long', 'YB_lat', 'vertices 8', 'vertices 12', 'vertices 24',
-        #'vertices 70', '8umphotom', '8flag1', '8flag2', '8flag3', '8flag4',
-        #'8flag5', '8flag6', '8flag7', '8flag8', '12umphotom', '12flag1', '12flag2', '12flag4',
-        #'12flag6', '12flag7', '12flag8', '24umphotom', '24flag1', '24flag2', '24flag4', '24flag6',
-        #'24flag7', '24flag8', '70umphotom', '70flag1', '70flag2', '70flag4', '70flag6', '70flag7',
-        #'70flag8'
-    #]
-    #writer = csv.DictWriter(output_file, fieldnames=headers)
-    #output_file.close()
 
-#else:
-    output_file = open(out_name,
-                       'w')  #####opens up files for creating csv file
-
+    output_file = open(out_name, 'w')
 
     writer = csv.DictWriter(
         output_file,
@@ -1328,12 +1308,33 @@ if os.path.exists(out_name) == False:
         YB = data[k]['YB']
         YB_long = data[k]['l']
         YB_lat = data[k]['b']
-        #output_file = open(out_name,append_write) #####opens up file for writing data
-        #writer=csv.DictWriter(output_file,fieldnames=['YB','YB_long','YB_lat','8umphotom','12umphotom','24umphotom'])
 
         writer.writerow({'YB': YB, 'YB_long': YB_long, 'YB_lat': YB_lat})
 
     output_file.close()
+
+#if the file does exist
+else:
+    output_file = pd.read_csv(out_name)
+    currentheaders = output_file.columns.tolist()
+    #check to see if it is in the new format. if not, rewrite it to be in the correct format
+    if currentheaders != headers:
+        badheaders = ['8flag2', '8flag3', '8flag4', '8flag5', '8flag6', '8flag7', '8flag8',
+                      '12flag2', '12flag4', '12flag6', '12flag7', '12flag8', '24flag2', '24flag4',
+                      '24flag6', '24flag7', '24flag8','70flag2', '70flag4', '70flag6', '70flag7', 
+                      '70flag8']
+        satheaders = ['8flag1', '12flag1', '24flag1', '70flag1']
+        #delete old flag columns except saturation flag
+        for i in range(len(badheaders)):
+            output_file.pop(badheaders[i])
+        #move saturation flags to the end of the csv
+        for i in range(len(satheaders)):
+            satcol = output_file.pop(satheaders[i])
+            output_file.insert(len(output_file.columns.tolist()), satheaders[i], satcol)
+        #write the new flags columns of the csv
+        for i in range(9):
+            output_file[headers[-9+i]] = [row2[-9+i]] + ['']*(len(output_file)-1)
+        output_file.to_csv(out_name, index= False)
 
 ######################################################
 # Begin the loop through YBs in the catalog          #
@@ -1518,10 +1519,7 @@ while (YB1 < YB2) and not done:
     diff24 = orig24 * 0
     diff70 = orig70 * 0
 
-    flag70 = [0]*6
-    flag24 = [0]*6
-    flag12 = [0]*6
-    flag8 = [0]*8
+    flaglist = [0] * 4
     
     umlist = ['70_um', '24_um', '12_um', '8_um']
 
@@ -1589,7 +1587,7 @@ while (YB1 < YB2) and not done:
         else:
             print('70 micron image is saturated.')
             coord70 = ' '
-            flag70[0] = 1
+            flaglist[3] = 1
     
         if ~np.isnan(orig24b.min()) and ~np.isnan(orig24b.max()):
             #check = 'y'
@@ -1656,7 +1654,7 @@ while (YB1 < YB2) and not done:
         else:
             print('24 micron image is saturated.')
             coord24 = ' '
-            flag24[0] = 1
+            flaglist[2] = 1
     
         if ~np.isnan(orig12b.min()) and ~np.isnan(orig12b.max()):
             #check = 'y'
@@ -1721,7 +1719,7 @@ while (YB1 < YB2) and not done:
         else:
             print('12 micron image is saturated.')
             coord12 = ' '
-            flag12[0] = 1
+            flaglist[1] = 1
     
         if ~np.isnan(orig8b.min()) and ~np.isnan(orig8b.max()):
             #check = 'y'
@@ -1786,7 +1784,7 @@ while (YB1 < YB2) and not done:
         else:
             print('8 micron image is saturated.')
             coord8 = ' '
-            flag8[0] = 1
+            flaglist[0] = 1
    
         ##############################################################################
         # Use residual images to perform photometry and write out to table with flags#
@@ -1794,59 +1792,19 @@ while (YB1 < YB2) and not done:
     
          #call the get_flux class
         flux_tot = get_flux(diff8, diff12, diff24, diff70)
-    
-        #'8umphotom':flux_tot.um8,'12umphotom':flux_tot.um12,'24umphotom':flux_tot.um24}
         
-        findata = [coord8, coord12, coord24, coord70] + [round(flux_tot.um8, 5)] + flag8 
-        findata += [round(flux_tot.um12, 5)] + flag12 + [round(flux_tot.um24, 5)] + flag24 
-        findata += [round(flux_tot.um70, 5)] + flag70
+        #compile all the data you need to write to the csv into one list
+        findata = [coord8, coord12, coord24, coord70] 
+        findata += [round(flux_tot.um8, 5), round(flux_tot.um12, 5), round(flux_tot.um24, 5), round(flux_tot.um70, 5)] 
+        findata += flaglist
         
         df = pd.read_csv(out_name)
         
         k = str(YB)
         
+        #write the data to the csv
         for i in range(len(findata)):
             df.loc[df['YB'] == k, headers[i+3]] = findata[i]
-    
-        #df.loc[df["YB"] == kk, "8umphotom"] = round(flux_tot.um8, 5)
-        #df.loc[df["YB"] == kk, '12umphotom'] = round(flux_tot.um12, 5)
-        #df.loc[df["YB"] == kk, '24umphotom'] = round(flux_tot.um24, 5)
-        #df.loc[df["YB"] == kk, '70umphotom'] = round(flux_tot.um70, 5)
-    
-        #df.loc[df["YB"] == kk, 'vertices 8'] = coord8
-        #df.loc[df["YB"] == kk, 'vertices 12'] = coord12
-        #df.loc[df["YB"] == kk, 'vertices 24'] = coord24
-        #df.loc[df["YB"] == kk, 'vertices 70'] = coord70
-    
-        #df.loc[df["YB"] == kk, '24flag1'] = flag24[0]
-        #df.loc[df["YB"] == kk, '24flag2'] = flag24[1]
-        #df.loc[df["YB"] == kk, '24flag4'] = flag24[3]
-        #df.loc[df["YB"] == kk, '24flag6'] = flag24[5]
-        #df.loc[df["YB"] == kk, '24flag7'] = flag24[6]
-        #df.loc[df["YB"] == kk, '24flag8'] = flag24[7]
-    
-        #df.loc[df["YB"] == kk, '70flag1'] = flag70[0]
-        #df.loc[df["YB"] == kk, '70flag2'] = flag70[1]
-        #df.loc[df["YB"] == kk, '70flag4'] = flag70[3]
-        #df.loc[df["YB"] == kk, '70flag6'] = flag70[5]
-        #df.loc[df["YB"] == kk, '70flag7'] = flag70[6]
-        #df.loc[df["YB"] == kk, '70flag8'] = flag70[7]
-    
-        #df.loc[df["YB"] == kk, '12flag1'] = flag12[0]
-        #df.loc[df["YB"] == kk, '12flag2'] = flag12[1]
-        #df.loc[df["YB"] == kk, '12flag4'] = flag12[3]
-        #df.loc[df["YB"] == kk, '12flag6'] = flag12[5]
-        #df.loc[df["YB"] == kk, '12flag7'] = flag12[6]
-        #df.loc[df["YB"] == kk, '12flag8'] = flag12[7]
-    
-        #df.loc[df["YB"] == kk, '8flag1'] = flag8[0]
-        #df.loc[df["YB"] == kk, '8flag2'] = flag8[1]
-        #df.loc[df["YB"] == kk, '8flag3'] = flag8[2]
-        #df.loc[df["YB"] == kk, '8flag4'] = flag8[3]
-        #df.loc[df["YB"] == kk, '8flag5'] = flag8[4]
-        #df.loc[df["YB"] == kk, '8flag6'] = flag8[5]
-        #df.loc[df["YB"] == kk, '8flag7'] = flag8[6]
-        #df.loc[df["YB"] == kk, '8flag8'] = flag8[7]
     
         df.to_csv(out_name, index=False)
         YB1 += 1
@@ -1854,20 +1812,7 @@ while (YB1 < YB2) and not done:
         pickle_out = open("leftYB.pickle", "wb")
         pickle.dump(YB1, pickle_out)
         pickle_out.close()
-        #if YB1 < YB2:
-            #Allow the user to safely exit the program between YBs
-            #cont = input(
-                #"Would you like to continue? Type 'y' for yes or anything else for no: "
-            #)
-            #if cont == 'y':
-                #print('Okay! Continuing photometry...')
-            #else:
-                #print('Goodbye! See you next time!')
-                #Save current YB, so the user can pick up from here next time they run the program
-                #pickle_out = open("leftYB.pickle", "wb")
-                #pickle.dump(YB1, pickle_out)
-                #pickle_out.close()
-                #sys.exit()
+
     except(ValueError):
         YB1 += 1
         #currentYB = currentYB + 1
