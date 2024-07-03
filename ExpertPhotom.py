@@ -126,7 +126,7 @@ def get_coords(img, imgw, wave, ybid):
     circle3 = Circle((dxw, dyw), YB_rad_pix, fill=False)
     circle4 = Circle((dxw, dyw), YB_rad_pix, fill=False)
 
-    clkfig = plt.figure(figsize=(18, 27))
+    clkfig = plt.figure(figsize = (18, 27))
 
     # Create a df of plottable points from YBloc
     plotloc = []
@@ -134,7 +134,7 @@ def get_coords(img, imgw, wave, ybid):
         if 0 <  abs(YBloc['l'][i] - YB_long_pix) < dxw and 0 < abs(YBloc['b'][i] - YB_lat_pix) < dyw:
             plotloc.append((YBloc['l'][i] - YB_long_pix + dxw, 
                             YBloc['b'][i] - YB_lat_pix + dyw, 
-                            YBloc['r'][i])),
+                            YBloc['r'][i]))
 
     #Plot rg image,
     axrg = plt.subplot(2, 4, 1, title='RG (24 + 8 um)', projection=imgw)
@@ -161,68 +161,56 @@ def get_coords(img, imgw, wave, ybid):
     plt.imshow(img, cmap='gray', norm=SymLogNorm(linthresh= LinearThreshold))
 
     #Plot the 70 um
+    fee = plt.subplot(2, 4, 5, title='70 um', projection=imgw)
+    plt.axis('off')
     if ~np.isnan(orig70.min()) and ~np.isnan(orig70.max()):
-        fee = plt.subplot(2, 4, 5, title='70 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig70,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig70.min(), vmax=orig70.max()))
-        fee.add_artist(circle1)
     else:
-        fee = plt.subplot(2, 4, 5, title='70 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig70,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
-        fee.add_artist(circle1)
+    fee.add_artist(circle1)
 
     #Plot the 24 um
+    foo = plt.subplot(2, 4, 6, title='24 um', projection=imgw)
+    plt.axis('off')
     if ~np.isnan(orig24.min()) and ~np.isnan(orig24.max()):
-        foo = plt.subplot(2, 4, 6, title='24 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig24,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig24.min(), vmax=orig24.max()))
-        foo.add_artist(circle2)
     else:
-        foo = plt.subplot(2, 4, 6, title='24 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig24,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
-        foo.add_artist(circle2)
+    foo.add_artist(circle2)
         
     #Plot the 12 um
+    faa = plt.subplot(2, 4, 7, title='12 um', projection=imgw)
+    plt.axis('off')
     if ~np.isnan(orig12.min()) and ~np.isnan(orig12.max()):
-        faa = plt.subplot(2, 4, 7, title='12 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig12,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig12.min(), vmax=orig12.max()))
-        faa.add_artist(circle3)
     else:
-        faa = plt.subplot(2, 4, 7, title='12 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig12,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
-        faa.add_artist(circle3)
+    faa.add_artist(circle3)
 
     #Plot the 8um
+    fum = plt.subplot(2, 4, 8, title='8 um', projection=imgw)
+    plt.axis('off')
     if ~np.isnan(orig8.min()) and ~np.isnan(orig8.max()):
-        fum = plt.subplot(2, 4, 8, title='8 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig8,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold, vmin=orig8.min(), vmax=orig8.max()))
-        fum.add_artist(circle4)
     else:
-        fum = plt.subplot(2, 4, 8, title='8 um', projection=imgw)
-        plt.axis('off')
         plt.imshow(orig8,
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
-        fum.add_artist(circle4)
+    fum.add_artist(circle4)
     #cbar = plt.colorbar(format='%05.2f')
     #cbar.set_norm(mynormalize.MyNormalize(vmin=orig.min(),vmax=orig.max(),stretch='linear'))
     #cbar = mycolorbar.DraggableColorbar(cbar,orig)
@@ -283,44 +271,41 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
     ############Generate the figures for each source##################
     #note I'm being lazy here and calling from the code things that aren't defined in function
     #this is pretty ugly and should maybe get cleaned up
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(8, 12))
+    
+    index = umlist.index(um)
 
     #Plot the original image and MWP User YB circle
     circle = Circle((dxw, dyw), YB_rad_pix, fill=False)
-    fig1 = plt.subplot(2, 2, 1, title='Cropped image', projection=imw)
-    plt.imshow(im1, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    
+    fig1 = plt.subplot(3, 2, 1, title='Cropped image', projection=imw)
+    if ~np.isnan(origlist[index].min()) and ~np.isnan(origlist[index].max()):
+        plt.imshow(im1, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    else:
+        plt.imshow(im1, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold))
     plt.axis('off')
-    #plt.xlabel('Longitude')
-    #plt.ylabel('Latitude')
     fig1.add_artist(circle)
-    #fig1.text(dxw / 2,
-              #dyw / 2 - 5,
-              #'MWP size',
-              #color='white',
-              #ha='center',
-              #va='top',
-              #weight='bold')
 
     #Plot the mask
-    plt.subplot(2, 2, 2, title='Masked Image', projection=imw)
-    plt.imshow(im2, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    plt.subplot(3, 2, 2, title='Masked Image', projection=imw)
+    if ~np.isnan(origlist[index].min()) and ~np.isnan(origlist[index].max()):
+        plt.imshow(im2, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    else:
+        plt.imshow(im2, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold))
     plt.axis('off')
-    #plt.xlabel('Longitude')
-    #plt.ylabel('Latitude')
 
     #Plot the interpolated background
-    plt.subplot(2, 2, 3, title='Interpolated image', projection=imw)
-    plt.imshow(im3, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    plt.subplot(3, 2, 3, title='Interpolated image', projection=imw)
+    if ~np.isnan(origlist[index].min()) and ~np.isnan(origlist[index].max()):
+        plt.imshow(im3, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold, vmin=im1.min(), vmax=im1.max()))
+    else:
+        plt.imshow(im3, cmap='hot', norm=SymLogNorm(linthresh= LinearThreshold))
     plt.axis('off')
-    #plt.xlabel('Longitude')
-    #plt.ylabel('Latitude')
-
+    
     #Plot the residual
-    plt.subplot(2, 2, 4, title='Residual(Image-Interp)', projection=imw)
+    plt.subplot(3, 2, 4, title='Residual(Image-Interp)', projection=imw)
     plt.imshow(im4, cmap='hot')
     plt.axis('off')
-    #plt.xlabel('Longitude')
-    #plt.ylabel('Latitude')
 
     #Make the plots pretty
     plt.tight_layout(pad=0.2, w_pad=5, h_pad=6)
@@ -329,11 +314,12 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
 
     #add widgets to let the user interact with the mouse
     if um == '8_um':
-        plt.subplots_adjust(bottom=0.3)  # Adjust the plot to make space for buttons
+        # Adjust the plot to make space for buttons
         # Create buttons
-        ax_button_redo_yes = plt.axes([0.1, 0.15, 0.35, 0.075])
-        ax_button_redo_no = plt.axes([0.55, 0.15, 0.35, 0.075])
-        ax_button_quit = plt.axes([0.1, 0.05, 0.8, 0.075])
+        ax_button_redo_yes = plt.axes([0.0125, 0.125, 0.4375, 0.075])
+        ax_button_redo_no = plt.axes([0.55, 0.125, 0.4375, 0.075])
+        ax_button_quit = plt.axes([0.0125, 0.025, .975, 0.075])
+        plt.subplots_adjust(bottom=-.15)
         
         button_yes = Button(ax_button_redo_yes, 'redo')
         button_no = Button(ax_button_redo_no, 'continue')
@@ -354,10 +340,11 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
             plt.pause(0.1)
     else:
         
-        plt.subplots_adjust(bottom=0.2)  # Adjust the plot to make space for buttons
+        # Adjust the plot to make space for buttons
         # Create buttons
-        ax_button_redo_yes = plt.axes([0.1, 0.05, 0.35, 0.075])
-        ax_button_redo_no = plt.axes([0.55, 0.05, 0.35, 0.075])
+        ax_button_redo_yes = plt.axes([0.0125, 0.125, 0.4375, 0.075])
+        ax_button_redo_no = plt.axes([0.55, 0.125, 0.4375, 0.075])
+        plt.subplots_adjust(bottom=-0.15)
         
         button_yes = Button(ax_button_redo_yes, 'redo')
         button_no = Button(ax_button_redo_no, 'continue')
@@ -1161,6 +1148,18 @@ class do_interp():
         ymin = min(xyvals[:, 1]) - 5
         ymax = max(xyvals[:, 1]) + 5
         #print(xmin, xmax, ymin, ymax)
+        
+        # OOB bug fix
+        if xmin < 0:
+            print('Too small of x values, please click closer to the center')
+            print('interpolation will be done with the closest safest value')
+            xmin = 0
+
+        if ymin < 0:
+            print('Too small of y values, please click closer to the center')
+            print('interpolation will be done with the closest safest value')
+            ymin = 0
+
         mask = np.zeros_like(img)
         inverse_mask = np.zeros_like(img)
         #region_mask = np.zeros_like(img)
@@ -1220,9 +1219,11 @@ class do_interp():
         #fnew_2D = make_2D(fnew, xnew, ynew, img)
         interp = img * region_mask + fnew_2D * inverse_mask
         self.interp = interp
-
+        
         #generate the residual image (original - interpolated background)
-        self.resid = img - interp
+        resid = img - interp
+        np.nan_to_num(resid, copy=False)
+        self.resid = resid
 
 
 #class that gets the flux from residual images. Unit conversions are applied here.
@@ -1278,40 +1279,20 @@ data = ascii.read(catalog_name, delimiter=',')
 
 headers = [
     'YB', 'YB_long', 'YB_lat', 'vertices 8', 'vertices 12', 'vertices 24',
-    'vertices 70', '8umphotom', '8flag1', '8flag2', '8flag3', '8flag4',
-    '8flag5', '8flag6', '8flag7', '8flag8', '12umphotom', '12flag1', '12flag2', '12flag4',
-    '12flag6', '12flag7', '12flag8', '24umphotom', '24flag1', '24flag2', '24flag4', '24flag6',
-    '24flag7', '24flag8', '70umphotom', '70flag1', '70flag2', '70flag4', '70flag6', '70flag7',
-    '70flag8'
+    'vertices 70', '8umphotom', '12umphotom', '24umphotom', '70umphotom', 
+    '8flag1', '12flag1', '24flag1', '70flag1', 'flag2', '8flag3', '12flag3',
+    '24flag3', '70flag3', '8flag4', '12flag4', '24flag4', '70flag4'
     ]
 
 row2 = [
-    'ID Number', 'degree', 'degree'] + ['pixel coords']*4 +['Jy',
-    'Saturated', 'Multiple sources within YB', 'Filament or Bubble Rim',
-    'No obvious source at this wavelength', 'IRDC Association',
-    'Star/Diffraction Pattern', 'Poor Confidence', 'Other/Follow Up'] + ['Jy',
-    'Saturated', 'Multiple sources within YB', 'No obvious source at this wavelength',
-    'Star/Diffraction Pattern', 'Poor Confidence', 'Other/Follow Up']*3 
+    'ID Number', 'degree', 'degree'] + ['pixel coords']*4 + ['Jy']*4 + [
+        'Saturated']*4 + ['Multiple Sources'] + ['No Obvious Source']*4 +[
+            'Poor Confidence']*4
 
+#if the file doesn't already exist, write it
 if os.path.exists(out_name) == False:
-    #append_write = 'a'  # append if already exists
-    #output_file = open(out_name,
-                       #append_write)  #####opens up files for creating csv file
-    #headers = [
-        #'YB', 'YB_long', 'YB_lat', 'vertices 8', 'vertices 12', 'vertices 24',
-        #'vertices 70', '8umphotom', '8flag1', '8flag2', '8flag3', '8flag4',
-        #'8flag5', '8flag6', '8flag7', '8flag8', '12umphotom', '12flag1', '12flag2', '12flag4',
-        #'12flag6', '12flag7', '12flag8', '24umphotom', '24flag1', '24flag2', '24flag4', '24flag6',
-        #'24flag7', '24flag8', '70umphotom', '70flag1', '70flag2', '70flag4', '70flag6', '70flag7',
-        #'70flag8'
-    #]
-    #writer = csv.DictWriter(output_file, fieldnames=headers)
-    #output_file.close()
 
-#else:
-    output_file = open(out_name,
-                       'w')  #####opens up files for creating csv file
-
+    output_file = open(out_name, 'w')
 
     writer = csv.DictWriter(
         output_file,
@@ -1327,12 +1308,33 @@ if os.path.exists(out_name) == False:
         YB = data[k]['YB']
         YB_long = data[k]['l']
         YB_lat = data[k]['b']
-        #output_file = open(out_name,append_write) #####opens up file for writing data
-        #writer=csv.DictWriter(output_file,fieldnames=['YB','YB_long','YB_lat','8umphotom','12umphotom','24umphotom'])
 
         writer.writerow({'YB': YB, 'YB_long': YB_long, 'YB_lat': YB_lat})
 
     output_file.close()
+
+#if the file does exist
+else:
+    output_file = pd.read_csv(out_name)
+    currentheaders = output_file.columns.tolist()
+    #check to see if it is in the new format. if not, rewrite it to be in the correct format
+    if currentheaders != headers:
+        badheaders = ['8flag2', '8flag3', '8flag4', '8flag5', '8flag6', '8flag7', '8flag8',
+                      '12flag2', '12flag4', '12flag6', '12flag7', '12flag8', '24flag2', '24flag4',
+                      '24flag6', '24flag7', '24flag8','70flag2', '70flag4', '70flag6', '70flag7', 
+                      '70flag8']
+        satheaders = ['8flag1', '12flag1', '24flag1', '70flag1']
+        #delete old flag columns except saturation flag
+        for i in range(len(badheaders)):
+            output_file.pop(badheaders[i])
+        #move saturation flags to the end of the csv
+        for i in range(len(satheaders)):
+            satcol = output_file.pop(satheaders[i])
+            output_file.insert(len(output_file.columns.tolist()), satheaders[i], satcol)
+        #write the new flags columns of the csv
+        for i in range(9):
+            output_file[headers[-9+i]] = [row2[-9+i]] + ['']*(len(output_file)-1)
+        output_file.to_csv(out_name, index= False)
 
 ######################################################
 # Begin the loop through YBs in the catalog          #
@@ -1440,6 +1442,8 @@ while (YB1 < YB2) and not done:
     #use Cutout2D to make the zoomed windows
     position = (xw, yw)
     size = (2 * dxw, 2 * dyw)
+    #smaller size of window when checking for saturation
+    size2 = ((YB_rad_pix * 2) + 20, (YB_rad_pix * 2) + 20)
 
     cut8 = Cutout2D(data=image.um8data,
                     position=position,
@@ -1456,6 +1460,24 @@ while (YB1 < YB2) and not done:
     cut70 = Cutout2D(data=image.um70data,
                      position=position,
                      size=size,
+                     wcs=image.um70w)
+    
+    #smaller cutouts to check for saturation only w/in 10 pixels of the YB
+    cut8b = Cutout2D(data=image.um8data,
+                    position=position,
+                    size=size2,
+                    wcs=image.um8w)
+    cut12b = Cutout2D(data=image.um12data,
+                     position=position,
+                     size=size2,
+                     wcs=image.um12w)
+    cut24b = Cutout2D(data=image.um24data,
+                     position=position,
+                     size=size2,
+                     wcs=image.um24w)
+    cut70b = Cutout2D(data=image.um70data,
+                     position=position,
+                     size=size2,
                      wcs=image.um70w)
 
     fitcopy8 = image.um8
@@ -1478,6 +1500,13 @@ while (YB1 < YB2) and not done:
     orig12 = cut12.data
     orig24 = cut24.data
     orig70 = cut70.data
+    origlist = [orig70, orig24, orig12, orig8]
+    
+    #orig images from the small cutouts
+    orig8b = cut8b.data
+    orig12b = cut12b.data
+    orig24b = cut24b.data
+    orig70b = cut70b.data
 
     wcs8 = cut8.wcs
     wcs12 = cut12.wcs
@@ -1490,10 +1519,9 @@ while (YB1 < YB2) and not done:
     diff24 = orig24 * 0
     diff70 = orig70 * 0
 
-    flag70 = [0]*6
-    flag24 = [0]*6
-    flag12 = [0]*6
-    flag8 = [0]*8
+    flaglist = [0] * 4
+    
+    umlist = ['70_um', '24_um', '12_um', '8_um']
 
     #create copies of cropped images called workmasks
     workmask8 = copy.deepcopy(orig8)
@@ -1503,10 +1531,12 @@ while (YB1 < YB2) and not done:
     ###################################################################
     # Call the classes to draw polygons and perform interpolation     #
     ###################################################################
+    
+    redo = True
+
     try:
-        if ~np.isnan(orig70.min()) and ~np.isnan(orig70.max()):
+        if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max()):
             #check = 'y'
-            redo = True
             print('######################################################')
             try:
                 #while check != 'n':
@@ -1528,9 +1558,9 @@ while (YB1 < YB2) and not done:
                         pickle_out.close()
                         sys.exit()
         
-                    print('got coords')
+                    #print('got coords')
                     #do the masking and interpolation on 70um image
-                    print('starting interp')
+                    #print('starting interp')
                     
                     
                     
@@ -1557,13 +1587,13 @@ while (YB1 < YB2) and not done:
         else:
             print('70 micron image is saturated.')
             coord70 = ' '
-            flag70[0] = 1
+            flaglist[3] = 1
     
-        if ~np.isnan(orig24.min()) and ~np.isnan(orig24.max()):
+        if ~np.isnan(orig24b.min()) and ~np.isnan(orig24b.max()):
             #check = 'y'
             print('######################################################')
             try:
-                if coordinates != []:
+                if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max()):
                     #Reuse previous points
                     interp24 = do_interp(workmask24, coordinates)
                     diff24 = interp24.resid
@@ -1598,9 +1628,9 @@ while (YB1 < YB2) and not done:
                         pickle_out.close()
                         sys.exit()
         
-                    print('got coords')
+                    #print('got coords')
                     #do the masking and interpolation on 24um image
-                    print('starting interp')
+                    #print('starting interp')
                     interp24 = do_interp(workmask24, coordinates)
                     diff24 = interp24.resid
                     #display and save the images for the 24um image
@@ -1624,14 +1654,14 @@ while (YB1 < YB2) and not done:
         else:
             print('24 micron image is saturated.')
             coord24 = ' '
-            flag24[0] = 1
+            flaglist[2] = 1
     
-        if ~np.isnan(orig12.min()) and ~np.isnan(orig12.max()):
+        if ~np.isnan(orig12b.min()) and ~np.isnan(orig12b.max()):
             #check = 'y'
             print('######################################################')
             try:
                 #Reuse previous points
-                if coordinates != []:
+                if (~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max())) or (~np.isnan(orig24b.min()) and ~np.isnan(orig24b.max())):
                     #do the masking and interpolation on 12um image
                     interp12 = do_interp(workmask12, coordinates)
                     diff12 = interp12.resid
@@ -1689,14 +1719,14 @@ while (YB1 < YB2) and not done:
         else:
             print('12 micron image is saturated.')
             coord12 = ' '
-            flag12[0] = 1
+            flaglist[1] = 1
     
-        if ~np.isnan(orig8.min()) and ~np.isnan(orig8.max()):
+        if ~np.isnan(orig8b.min()) and ~np.isnan(orig8b.max()):
             #check = 'y'
             print('######################################################')
             try:
                 #Reuse previous points
-                if coordinates != []:
+                if (~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max())) or (~np.isnan(orig24b.min()) and ~np.isnan(orig24b.max())) or (~np.isnan(orig12b.min()) and ~np.isnan(orig12.max())):
                     interp8 = do_interp(workmask8, coordinates)
                     diff8 = interp8.resid
                     #display and save the images for the 8um image
@@ -1754,7 +1784,7 @@ while (YB1 < YB2) and not done:
         else:
             print('8 micron image is saturated.')
             coord8 = ' '
-            flag8[0] = 1
+            flaglist[0] = 1
    
         ##############################################################################
         # Use residual images to perform photometry and write out to table with flags#
@@ -1762,59 +1792,19 @@ while (YB1 < YB2) and not done:
     
          #call the get_flux class
         flux_tot = get_flux(diff8, diff12, diff24, diff70)
-    
-        #'8umphotom':flux_tot.um8,'12umphotom':flux_tot.um12,'24umphotom':flux_tot.um24}
         
-        findata = [coord8, coord12, coord24, coord70] + [round(flux_tot.um8, 5)] + flag8 
-        findata += [round(flux_tot.um12, 5)] + flag12 + [round(flux_tot.um24, 5)] + flag24 
-        findata += [round(flux_tot.um70, 5)] + flag70
+        #compile all the data you need to write to the csv into one list
+        findata = [coord8, coord12, coord24, coord70] 
+        findata += [round(flux_tot.um8, 5), round(flux_tot.um12, 5), round(flux_tot.um24, 5), round(flux_tot.um70, 5)] 
+        findata += flaglist
         
         df = pd.read_csv(out_name)
         
         k = str(YB)
         
+        #write the data to the csv
         for i in range(len(findata)):
             df.loc[df['YB'] == k, headers[i+3]] = findata[i]
-    
-        #df.loc[df["YB"] == kk, "8umphotom"] = round(flux_tot.um8, 5)
-        #df.loc[df["YB"] == kk, '12umphotom'] = round(flux_tot.um12, 5)
-        #df.loc[df["YB"] == kk, '24umphotom'] = round(flux_tot.um24, 5)
-        #df.loc[df["YB"] == kk, '70umphotom'] = round(flux_tot.um70, 5)
-    
-        #df.loc[df["YB"] == kk, 'vertices 8'] = coord8
-        #df.loc[df["YB"] == kk, 'vertices 12'] = coord12
-        #df.loc[df["YB"] == kk, 'vertices 24'] = coord24
-        #df.loc[df["YB"] == kk, 'vertices 70'] = coord70
-    
-        #df.loc[df["YB"] == kk, '24flag1'] = flag24[0]
-        #df.loc[df["YB"] == kk, '24flag2'] = flag24[1]
-        #df.loc[df["YB"] == kk, '24flag4'] = flag24[3]
-        #df.loc[df["YB"] == kk, '24flag6'] = flag24[5]
-        #df.loc[df["YB"] == kk, '24flag7'] = flag24[6]
-        #df.loc[df["YB"] == kk, '24flag8'] = flag24[7]
-    
-        #df.loc[df["YB"] == kk, '70flag1'] = flag70[0]
-        #df.loc[df["YB"] == kk, '70flag2'] = flag70[1]
-        #df.loc[df["YB"] == kk, '70flag4'] = flag70[3]
-        #df.loc[df["YB"] == kk, '70flag6'] = flag70[5]
-        #df.loc[df["YB"] == kk, '70flag7'] = flag70[6]
-        #df.loc[df["YB"] == kk, '70flag8'] = flag70[7]
-    
-        #df.loc[df["YB"] == kk, '12flag1'] = flag12[0]
-        #df.loc[df["YB"] == kk, '12flag2'] = flag12[1]
-        #df.loc[df["YB"] == kk, '12flag4'] = flag12[3]
-        #df.loc[df["YB"] == kk, '12flag6'] = flag12[5]
-        #df.loc[df["YB"] == kk, '12flag7'] = flag12[6]
-        #df.loc[df["YB"] == kk, '12flag8'] = flag12[7]
-    
-        #df.loc[df["YB"] == kk, '8flag1'] = flag8[0]
-        #df.loc[df["YB"] == kk, '8flag2'] = flag8[1]
-        #df.loc[df["YB"] == kk, '8flag3'] = flag8[2]
-        #df.loc[df["YB"] == kk, '8flag4'] = flag8[3]
-        #df.loc[df["YB"] == kk, '8flag5'] = flag8[4]
-        #df.loc[df["YB"] == kk, '8flag6'] = flag8[5]
-        #df.loc[df["YB"] == kk, '8flag7'] = flag8[6]
-        #df.loc[df["YB"] == kk, '8flag8'] = flag8[7]
     
         df.to_csv(out_name, index=False)
         YB1 += 1
@@ -1822,20 +1812,7 @@ while (YB1 < YB2) and not done:
         pickle_out = open("leftYB.pickle", "wb")
         pickle.dump(YB1, pickle_out)
         pickle_out.close()
-        #if YB1 < YB2:
-            #Allow the user to safely exit the program between YBs
-            #cont = input(
-                #"Would you like to continue? Type 'y' for yes or anything else for no: "
-            #)
-            #if cont == 'y':
-                #print('Okay! Continuing photometry...')
-            #else:
-                #print('Goodbye! See you next time!')
-                #Save current YB, so the user can pick up from here next time they run the program
-                #pickle_out = open("leftYB.pickle", "wb")
-                #pickle.dump(YB1, pickle_out)
-                #pickle_out.close()
-                #sys.exit()
+
     except(ValueError):
         YB1 += 1
         #currentYB = currentYB + 1
