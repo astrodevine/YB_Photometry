@@ -155,6 +155,7 @@ for i in range(len(datatitles)):
     plt.hist(vals12_8, facecolor=colorsets[i], bins= 20)
     minifig.tick_params(labelsize=15)
     ave12_8= sum(vals12_8)/len(vals12_8)
+    #Average lines for histogram
     HIIline= plt.axvline(x=-0.09, color='black', linestyle='-.', label= 'HII Region Average')
     PAVEline= plt.axvline(x=-0.43, color='black', label= 'Pilot Region Average')
     FAVEline= plt.axvline(x=ave12_8, color='hotpink', label= datatitles[i] + ' Average')
@@ -163,9 +164,9 @@ for i in range(len(datatitles)):
 ##################
 # Make KDE plots #
 ##################
-#Uncertainty variables
-xvar= 0.1
-yvar= 0.15
+#Uncertainty variables, arbitrary numbers right now, edit with real values once we have all measurements
+xvar= [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+yvar= [0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
 
 colors =  ['Greens', 'Reds', 'Blues', 'Oranges', 'Purples', 'Greys']
 
@@ -192,9 +193,9 @@ for i in range(len(datatitles)):
     plt.vlines(1.47, 0.26, 0.84, colors='k', linestyles='solid', label='')
     plt.hlines(0.26, 1.05,1.47, colors='k', linestyles='solid', label='')
     plt.hlines(0.84, 1.05, 1.47, colors='k', linestyles='solid', label='')
-    #Uncertainty crosshatch
-    plt.hlines(-1, 2.25-xvar, 2.25+xvar, colors='k', linestyles='dotted')
-    plt.vlines(2.25, -1-yvar, -1+yvar, colors='k', linestyles='dotted')
+    #Uncertainty crosshatch, commented out for now
+    #plt.hlines(-1, 2.25-xvar[i], 2.25+xvar[i], colors='k', linestyles='dotted')
+    #plt.vlines(2.25, -1-yvar[i], -1+yvar[i], colors='k', linestyles='dotted')
     plt.text(2,1.8,'N=' + str(numplottedlist[i]), fontsize=15)
     
 ################################################
