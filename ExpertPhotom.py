@@ -9,10 +9,10 @@ the MWP location and radius
 '''
 
 import numpy as np
-#import matplotlib
+#import matplotlib as mpl
 #matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Button
+from matplotlib.widgets import Button, TextBox
 
 plt.ion()
 #get_ipython().run_line_magic('matplotlib', 'inline')
@@ -126,7 +126,7 @@ def get_coords(img, imgw, wave, ybid):
     circle3 = Circle((dxw, dyw), YB_rad_pix, fill=False)
     circle4 = Circle((dxw, dyw), YB_rad_pix, fill=False)
 
-    clkfig = plt.figure(figsize = (18, 27))
+    clkfig = plt.figure(figsize = (30, 40))
 
     # Create a df of plottable points from YBloc
     plotloc = []
@@ -142,11 +142,13 @@ def get_coords(img, imgw, wave, ybid):
     g = orig8
     b = np.zeros(orig8.shape)
     axrg.axis('off')
-    axrg.imshow(make_lupton_rgb(r, g, b, stretch=200, Q=0))
+    rgbplot = make_lupton_rgb(r, g, b, stretch=200, Q=0)
+    axrg.imshow(rgbplot)
                 #, norm=LogNorm())
     axrg.add_artist(circle)
+    axrg.plot(dxw, dyw, color= 'black', marker= 'x', markersize= 12)
     for point in range(len(plotloc)):
-        #axrg.plot(plotloc[point][0], plotloc[point][1], marker='+', markersize=40)
+        plt.plot(plotloc[point][0], plotloc[point][1], color= 'blue', marker= 'x', markersize= 12),
         circleloc = Circle((plotloc[point][0], plotloc[point][1]), plotloc[point][2], fill = False, color = 'Blue')
         axrg.add_artist(circleloc)
 
@@ -159,7 +161,7 @@ def get_coords(img, imgw, wave, ybid):
     
     plt.axis('off')
     plt.imshow(img, cmap='gray', norm=SymLogNorm(linthresh= LinearThreshold))
-
+    
     #Plot the 70 um
     fee = plt.subplot(2, 4, 5, title='70 um', projection=imgw)
     plt.axis('off')
@@ -172,6 +174,7 @@ def get_coords(img, imgw, wave, ybid):
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
     fee.add_artist(circle1)
+    fee.plot(dxw, dyw, color= 'black', marker= 'x', markersize= 12)
 
     #Plot the 24 um
     foo = plt.subplot(2, 4, 6, title='24 um', projection=imgw)
@@ -185,6 +188,7 @@ def get_coords(img, imgw, wave, ybid):
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
     foo.add_artist(circle2)
+    foo.plot(dxw, dyw, color= 'black', marker= 'x', markersize= 12)
         
     #Plot the 12 um
     faa = plt.subplot(2, 4, 7, title='12 um', projection=imgw)
@@ -198,6 +202,7 @@ def get_coords(img, imgw, wave, ybid):
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
     faa.add_artist(circle3)
+    faa.plot(dxw, dyw, color= 'black', marker= 'x', markersize= 12)
 
     #Plot the 8um
     fum = plt.subplot(2, 4, 8, title='8 um', projection=imgw)
@@ -211,6 +216,7 @@ def get_coords(img, imgw, wave, ybid):
                    cmap='hot',
                    norm=SymLogNorm(linthresh= LinearThreshold))
     fum.add_artist(circle4)
+    fum.plot(dxw, dyw, color= 'black', marker= 'x', markersize= 12)
     #cbar = plt.colorbar(format='%05.2f')
     #cbar.set_norm(mynormalize.MyNormalize(vmin=orig.min(),vmax=orig.max(),stretch='linear'))
     #cbar = mycolorbar.DraggableColorbar(cbar,orig)
@@ -263,6 +269,21 @@ def savequit(event):
     global done
     done = True
     plt.close()
+
+def entrynumber(entry):
+    global startpos
+    startpos = int(entry)
+    plt.close()
+    return startpos
+
+def leftoff(event):
+    global startpos
+    pickle_in = open("leftYB.pickle", "rb")
+    leftYB = pickle.load(
+        pickle_in)  #loading in the last YB they completed last time
+    startpos = leftYB + 1
+    plt.close()
+    return startpos
             
 #generates and saves the four panel images to the folder photom_images
 #call with (image, masked image, interpolated image, resid)
@@ -271,7 +292,7 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
     ############Generate the figures for each source##################
     #note I'm being lazy here and calling from the code things that aren't defined in function
     #this is pretty ugly and should maybe get cleaned up
-    fig = plt.figure(figsize=(8, 12))
+    fig = plt.figure(figsize=(10, 15))
     
     index = umlist.index(um)
 
@@ -386,6 +407,7 @@ def make_figs(im1, im2, im3, im4, fitfile, imw, um):
 
 
 #Function to examine images and input flags for output file
+#I don't know if we can just delete this but don't use this function it is obselete and will probably break something
 def make_flags(fim1, fim2, um):
     plt.figure(figsize=(6, 3))
 
@@ -1340,29 +1362,29 @@ else:
 # Begin the loop through YBs in the catalog          #
 ######################################################
 
-#Set Pre-chosen range
-BegYB = 3028
-
-YBlast = 3034
+#Set last YB
+YB2 = 4457
 
 #Set linear threshold of the SymLogNorm
 LinearThreshold = 0.001
 
-#The below allows the user to start at the beginning of the range or from where they left off last time the program was ran
-print('Welcome! Where would you like to start?')
-startpos = input(
-    "Enter 'a' to start from the beginning or anything else to start where you left off! "
-)
-if startpos == 'a':
-    YBfirst = BegYB - 1
-else:
-    pickle_in = open("leftYB.pickle", "rb")
-    leftYB = pickle.load(
-        pickle_in)  #loading in the last YB they completed last time
-    YBfirst = leftYB
+#The below allows the user to start at a specified YB number or from where they left off last time the program was ran
+entry = plt.figure(figsize= (5,2.5))
+entry.suptitle('Welcome! Where would you like to start?')
+startbox_axes = plt.axes([.2,.6,.7,.25])
+entrybox = TextBox(startbox_axes, '')
+entrybox.on_submit(entrynumber)
+startbutton_axes = plt.axes([.2,.2,.7,.25])
+startbutton = Button(startbutton_axes, 'Start where you left off')
+startbutton.on_clicked(leftoff)
 
-YB1 = int(YBfirst)
-YB2 = int(YBlast)
+startpos = 0
+plt.show()
+while startpos == 0:
+    plt.pause(0.1)
+    
+YB1 = int(startpos - 1)
+
 done = False
 #k = YB1
 #currentYB = YB1
@@ -1443,7 +1465,7 @@ while (YB1 < YB2) and not done:
     position = (xw, yw)
     size = (2 * dxw, 2 * dyw)
     #smaller size of window when checking for saturation
-    size2 = ((YB_rad_pix * 2) + 20, (YB_rad_pix * 2) + 20)
+    size2 = ((YB_rad_pix * 2) + 10, (YB_rad_pix * 2) + 10)
 
     cut8 = Cutout2D(data=image.um8data,
                     position=position,
@@ -1533,17 +1555,18 @@ while (YB1 < YB2) and not done:
     ###################################################################
     
     redo = True
-
+    
     try:
-        if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max()):
+        if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max()) and ~(3034 < YB < 3297):
             #check = 'y'
+            print("Analysis for YB " + str(YB))
             print('######################################################')
+            print('Beginning the 70um analysis')
             try:
                 #while check != 'n':
                 while redo:
                     # 70 um image analysis
                     #reset global list coords that gets creaeted in get_coords
-                    print('Beginning the 70 um analysis')
                     #coords = []
                     #get the coordinates on 70um image
                     coordinates = get_coords(workmask70, wcs70, '70 um', YB)
@@ -1578,22 +1601,25 @@ while (YB1 < YB2) and not done:
                     if check != 'n':
                         plt.close('all')'''
                 plt.close('all')
-                #flag70 = make_flags(workmask70, interp70.resid, '70') 
                 coord70 = str(coordinates)
                 plt.close('all')
             except(ValueError):
                 print("There was a problem with the 70 micron image.")
                 coord70 = ' '
-        else:
+        elif np.isnan(orig70b.min()) and np.isnan(orig70b.max()):
             print('70 micron image is saturated.')
             coord70 = ' '
             flaglist[3] = 1
+        elif 3034 < YB < 3297:
+            print("SMOG image. Skipping 70um analysis")
+            coord70 = ' '
     
         if ~np.isnan(orig24b.min()) and ~np.isnan(orig24b.max()):
             #check = 'y'
             print('######################################################')
+            print('Beginning the 24um analysis')
             try:
-                if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max()):
+                if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max()) and ~(3034 < YB < 3297):
                     #Reuse previous points
                     interp24 = do_interp(workmask24, coordinates)
                     diff24 = interp24.resid
@@ -1613,7 +1639,6 @@ while (YB1 < YB2) and not done:
                 while redo:
                     # 24 um image analysis
                     #reset global list coords that gets creaeted in get_coords
-                    print('Beginning the 24 um analysis')
                     #coords = []
                     #get the coordinates on 24um image
                     coordinates = get_coords(workmask24, wcs24, '24 um', YB)
@@ -1645,7 +1670,6 @@ while (YB1 < YB2) and not done:
                     if check != 'n':
                         plt.close('all')'''
                 plt.close('all')
-                #flag24 = make_flags(workmask24, interp24.resid, '24')
                 coord24 = str(coordinates)
                 plt.close('all')
             except(ValueError):
@@ -1659,6 +1683,7 @@ while (YB1 < YB2) and not done:
         if ~np.isnan(orig12b.min()) and ~np.isnan(orig12b.max()):
             #check = 'y'
             print('######################################################')
+            print('Beginning the 12um analysis')
             try:
                 #Reuse previous points
                 if (~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max())) or (~np.isnan(orig24b.min()) and ~np.isnan(orig24b.max())):
@@ -1681,7 +1706,6 @@ while (YB1 < YB2) and not done:
                 while redo:
                     # 12 um image analysis
                     #reset global list coords that gets created in get_coords
-                    print('Beginning the 12 um analysis')
                     #coords = []
                     #get the coordinates on 12um image
                     coordinates = get_coords(workmask12, wcs12, '12 um', YB)
@@ -1710,7 +1734,6 @@ while (YB1 < YB2) and not done:
                     if check != 'n':
                         plt.close('all')'''
                 plt.close('all')
-                #flag12 = make_flags(workmask12, interp12.resid, '12')
                 coord12 = str(coordinates)
                 plt.close('all')
             except(ValueError):
@@ -1724,6 +1747,7 @@ while (YB1 < YB2) and not done:
         if ~np.isnan(orig8b.min()) and ~np.isnan(orig8b.max()):
             #check = 'y'
             print('######################################################')
+            print('Beginning the 8um analysis')
             try:
                 #Reuse previous points
                 if (~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max())) or (~np.isnan(orig24b.min()) and ~np.isnan(orig24b.max())) or (~np.isnan(orig12b.min()) and ~np.isnan(orig12.max())):
@@ -1746,7 +1770,6 @@ while (YB1 < YB2) and not done:
                 while redo:
                     # 8 um image analysis
                     #reset global list coords that gets creaeted in get_coords
-                    print('Beginning the 8 um analysis')
                     #coords = []
                     #get the coordinates on 8um image
                     coordinates = get_coords(workmask8, wcs8, '8 um', YB)
@@ -1775,7 +1798,6 @@ while (YB1 < YB2) and not done:
                     if check != 'n':
                         plt.close('all')'''
                 plt.close('all')
-                #flag8 = make_flags(workmask8, interp8.resid, '8')
                 coord8 = str(coordinates)
                 plt.close('all')
             except(ValueError):
@@ -1820,7 +1842,7 @@ while (YB1 < YB2) and not done:
         pickle.dump(YB1, pickle_out)
         pickle_out.close()
     if done:
-        print('Goodbye! See you next time!')
+        print('Goodbye! See you next time! You have ' + str(YB2 - YB) + ' yellowballs left')
         #Save current YB, so the user can pick up from here next time they run the program
         pickle_out = open("leftYB.pickle", "wb")
         pickle.dump(YB1, pickle_out)
