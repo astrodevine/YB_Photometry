@@ -1236,8 +1236,10 @@ class do_interp():
         range_array2 = np.arange(fnew.size)
         #print("rangearay:",range_array)
         for (i, x, y) in zip(range_array2, xnew, ynew):
-            fnew_2D[y][x] = fnew[i]
-
+            fnew_2D[x][y] = fnew[i]
+        
+        fnew_2D = np.transpose(fnew_2D)
+        
         #fnew_2D = make_2D(fnew, xnew, ynew, img)
         interp = img * region_mask + fnew_2D * inverse_mask
         self.interp = interp
