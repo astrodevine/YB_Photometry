@@ -1,11 +1,5 @@
 '''
-Version Last updated 7/15/2021 by Makenzie Stapley
--Includes 70 micron images
--Skips images that are saturated and writes out ' ' for those coordinate values
--Axis labels removed to make the 6 and 4-panel images pretty
--Compactness class and calculations have been removed
--If there are multiple YBs in the cropped image, the rg image has a blue circle with
-the MWP location and radius
+Version Last updated 7/2025 by Ethan Bassignthwaite
 '''
 
 import numpy as np
