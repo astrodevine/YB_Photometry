@@ -1553,7 +1553,7 @@ while (YB1 < YB2) and not done:
     redo = True
     
     try:
-        if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max()) and ~(3034 < YB < 3297):
+        if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max())):
             #check = 'y'
             print("Analysis for YB " + str(YB))
             print('######################################################')
@@ -1606,16 +1606,13 @@ while (YB1 < YB2) and not done:
             print('70 micron image is saturated.')
             coord70 = ' '
             flaglist[3] = 1
-        elif 3034 < YB < 3297:
-            print("SMOG image. Skipping 70um analysis")
-            coord70 = ' '
     
         if ~np.isnan(orig24b.min()) and ~np.isnan(orig24b.max()):
             #check = 'y'
             print('######################################################')
             print('Beginning the 24um analysis')
             try:
-                if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max()) and ~(3034 < YB < 3297):
+                if ~np.isnan(orig70b.min()) and ~np.isnan(orig70b.max()):
                     #Reuse previous points
                     interp24 = do_interp(workmask24, coordinates)
                     diff24 = interp24.resid
