@@ -994,7 +994,6 @@ class AverageMask:
         imagelist = [workmask70, workmask24, workmask12, workmask]
         averagelist = []
         residlist = []
-
         for i in range(0, 4):
             average_mask = np.zeros_like(workmask70)
             img = imagelist[i]
@@ -1034,7 +1033,7 @@ class AverageMask:
             #print(average_mask[50])
             region_mask = np.copy(average_mask)
             region_mask[np.where(region_mask != 1)] = 0
-                
+            export_mask = np.copy()    
             inverse_mask = region_mask*-1 +1
                 
                 #In order to recreate goodvals, I need to find the maximum 0 values in order to create the rectangle
@@ -1267,7 +1266,7 @@ class AverageMask:
         #
         ####################################################################################################################################################
 
-        csvlist = ['YBphotometry_results_EthanBass.csv', 'YBphotometry_results_Ignasi.csv', 'YBphotometry_results_colemaya.csv', 'YBphotometry_results_IgnasiBonmatiGonzalvez.csv', 'YBphotometry_results_KORRA.csv', 'YBphotometry_results_WolfChase1-ALL_YBs.csv', 'YBphotometry_results_Asta.csv']
+        csvlist = ['YBphotometry_results_EthanBass.csv', 'YBphotometry_results_Ignasi.csv', 'YBphotometry_results_colemaya.csv', 'YBphotometry_results_IgnasiBonmatiGonzalvez.csv', 'YBphotometry_results_KORRA.csv', 'YBphotometry_results_WolfChase1.csv', 'YBphotometry_results_Asta.csv', 'YBphotometry_results_NLarose.csv', 'YBphotometry_results_Key.csv']
         #csvlist = ['YBphotometry_results_EthanBass.csv']
     
     
@@ -1279,11 +1278,17 @@ class AverageMask:
         residlist = []
         baselist = []
         errorlist = []
-
-        for i in range(0, 4):
+        
+        umlist = [70,24,12,8]
+        fitcopylist = [fitcopy70, fitcopy24, fitcopy12, fitcopy8]
+        workmasks = [workmask70, workmask24, workmask12, workmask]
+        for i in range(0,4):
+            workmaskum = workmasks[i]
             average_mask = np.zeros_like(workmask70)
             img = imagelist[i]
             header = headerlist[i]
+            um = str(umlist[i])
+            fitfile = fitcopylist[i]
             validlength = 0
             for csvname in csvlist:
                 userdata = ascii.read(csvname, delimiter=',')
@@ -1301,107 +1306,139 @@ class AverageMask:
                     
                 
             print(f"Num of sources: {validlength}, for YB {YBnum}, at {headerlist[i]}um")
-            if (validlength == 0):
-                return 0
-            average_mask /= validlength
-            #print(average_mask[50])
-            averagelist.append(np.copy(average_mask)*-1 +1)
+            if (validlength != 0):
+                average_mask /= validlength
+                #print(average_mask[50])
+                averagelist.append(np.copy(average_mask)*-1 +1)
+        
+                    #here average_mask is 1 outside, 0 inside of all shapes, and some fractions between
+                sensitivity = 0.5 #determines the breakoff point
+                    # a low sensitivity means that we take the smaller shape
+                    # a high sensitivity means that we take bigger shapes
+                    # thus a low sensitivity will be more 'zoomed in' on the YB
     
-                #here average_mask is 1 outside, 0 inside of all shapes, and some fractions between
-            sensitivity = 0.5 #determines the breakoff point
-                # a low sensitivity means that we take the smaller shape
-                # a high sensitivity means that we take bigger shapes
-                # thus a low sensitivity will be more 'zoomed in' on the YB
-
-            errorlist.append((average_mask[np.where(average_mask <  sensitivity)]).sum().sum() + (1 - average_mask[np.where(average_mask >= sensitivity)]).sum().sum())
-
-            average_mask[np.where(average_mask >= sensitivity)] = 1
-            average_mask[np.where(average_mask <  sensitivity)] = float('nan')
-            #print(average_mask[50])
-            region_mask = np.copy(average_mask)
-            region_mask[np.where(region_mask != 1)] = 0
+                errorlist.append((average_mask[np.where(average_mask <  sensitivity)]).sum().sum() + (1 - average_mask[np.where(average_mask >= sensitivity)]).sum().sum())
                 
-            inverse_mask = region_mask*-1 +1
+                heatmask = np.copy(average_mask)*-1 + 1
                 
-                #In order to recreate goodvals, I need to find the maximum 0 values in order to create the rectangle
-            shapevals = np.where(average_mask != 1)
-                #am using 1 for x values and 0 for y values since that is what is done in the main code
-            xmin = min(shapevals[1]) - 5
-            xmax = max(shapevals[1]) + 5
-            ymin = min(shapevals[0]) - 5
-            ymax = max(shapevals[0]) + 5
-            
-            if xmin < 0:
-                xmin = 5
-            if ymin < 0:
-                ymin = 5
-            if xmax > 99:
-                xmax = 95
-            if ymax > 99:
-                ymax = 95
-            '''if average_mask.sum() == 0:
-                print('this line works')'''
-            #print(average_mask[50])
-            #print(xmin, xmax, ymin, ymax)
-            cutout = np.zeros_like(average_mask)
-            cutout[ymin:ymax, xmin:xmax] = average_mask[ymin:ymax, xmin:xmax]
-            cutout[np.where(cutout == 0)] = float('nan')
-                #this yields a cutout with nan inside our shape and outside the bounding rectangle
-                #else it is 1 
-            
-                #this gives us the values inside rect but outside of the shape
-            goodvals = np.where(np.isfinite(cutout))
-            #print('GOOOOD\n', goodvals)
-            x = goodvals[1]  # x values of finite coordinates
-            y = goodvals[0]  # y values of finite coordinates
+                average_mask[np.where(average_mask >= sensitivity)] = 1
+                average_mask[np.where(average_mask <  sensitivity)] = float('nan')
                 
-                #define fvals without making a function
-                #fvals are then
-            range_array = np.arange(x.size)
-            fvals = np.zeros(x.size)
-            for (i, xi, yi) in zip(range_array, x, y):
-                fvals[i] = img[yi][xi] #get proper image here
-            #print('fvals', fvals)
-            #print(fvals)
-            
-            
-
+                export_mask = np.copy(workmasks[i])
+                export_mask = workmasks[i] * average_mask 
                 
-            newfunc = interpolate.Rbf(
-                x, y, fvals,
-                function='multiquadric')  # the function that does interpolation
-            allvals = np.where(img)  # whole region to interpolate over
-            xnew = allvals[1]
-            ynew = allvals[0]
-            fnew = newfunc(xnew, ynew)
+                #print(average_mask[50])
+                region_mask = np.copy(average_mask)
+                region_mask[np.where(region_mask != 1)] = 0
                     
-            
-            #Reduced Make_2D function
-            #put the interpolated values back into a 2D array for display and other uses
-            fnew_2D = np.zeros(
-                (int(xnew.size /
-                     ((img.shape)[0])), int(ynew.size / ((img.shape)[1]))),
-                dtype=float)
-            
-            range_array = np.arange(fnew.size)
+                inverse_mask = region_mask*-1 +1
+                
+                    #In order to recreate goodvals, I need to find the maximum 0 values in order to create the rectangle
+                shapevals = np.where(average_mask != 1)
+                    #am using 1 for x values and 0 for y values since that is what is done in the main code
+                xmin = min(shapevals[1]) - 5
+                xmax = max(shapevals[1]) + 5
+                ymin = min(shapevals[0]) - 5
+                ymax = max(shapevals[0]) + 5
+                
+                if xmin < 0:
+                    xmin = 5
+                if ymin < 0:
+                    ymin = 5
+                if xmax > 99:
+                    xmax = 95
+                if ymax > 99:
+                    ymax = 95
+                '''if average_mask.sum() == 0:
+                    print('this line works')'''
+                #print(average_mask[50])
+                #print(xmin, xmax, ymin, ymax)
+                cutout = np.zeros_like(average_mask)
+                cutout[ymin:ymax, xmin:xmax] = average_mask[ymin:ymax, xmin:xmax]
+                cutout[np.where(cutout == 0)] = float('nan')
+                    #this yields a cutout with nan inside our shape and outside the bounding rectangle
+                    #else it is 1 
+                
+                    #this gives us the values inside rect but outside of the shape
+                goodvals = np.where(np.isfinite(cutout))
+                #print('GOOOOD\n', goodvals)
+                x = goodvals[1]  # x values of finite coordinates
+                y = goodvals[0]  # y values of finite coordinates
                     
-            for (i, x, y) in zip(range_array, xnew, ynew):
-                fnew_2D[y][x] = fnew[i]
+                    #define fvals without making a function
+                    #fvals are then
+                range_array = np.arange(x.size)
+                fvals = np.zeros(x.size)
+                for (i, xi, yi) in zip(range_array, x, y):
+                    fvals[i] = img[yi][xi] #get proper image here
+                #print('fvals', fvals)
+                #print(fvals)
+                
+                
+    
+                    
+                newfunc = interpolate.Rbf(
+                    x, y, fvals,
+                    function='multiquadric')  # the function that does interpolation
+                allvals = np.where(img)  # whole region to interpolate over
+                xnew = allvals[1]
+                ynew = allvals[0]
+                fnew = newfunc(xnew, ynew)
                         
                 
+                #Reduced Make_2D function
+                #put the interpolated values back into a 2D array for display and other uses
+                fnew_2D = np.zeros(
+                    (int(xnew.size /
+                         ((img.shape)[0])), int(ynew.size / ((img.shape)[1]))),
+                    dtype=float)
                 
-            resid = img - (img * region_mask + fnew_2D * inverse_mask) 
-            residlist.append(resid)
-            #interp = img * region_mask + fnew_2D * inverse_mask
-            #averagelist.append(average_mask)
+                range_array = np.arange(fnew.size)
+                        
+                for (i, x, y) in zip(range_array, xnew, ynew):
+                    fnew_2D[y][x] = fnew[i]
+                            
+                    
+                interp = img * region_mask + fnew_2D * inverse_mask   
+                resid = img - (interp) 
+                residlist.append(resid)
+                #averagelist.append(average_mask)
+            
+            else:
+                export_mask = np.zeros_like(workmaskum)
+                interp = np.zeros_like(workmaskum)
+                resid = np.zeros_like(workmaskum)
+                
+            im1name = os.path.join(path, f"Flagging_cutouts/{um}cropped_YB_{YBnum}.fits")
+            im2name = os.path.join(path, f"Flagging_cutouts/{um}masked_YB_{YBnum}.fits")
+            im3name = os.path.join(path, f"Flagging_cutouts/{um}interp_YB_{YBnum}.fits")
+            im4name = os.path.join(path, f"Flagging_cutouts/{um}resid_YB_{YBnum}.fits")
+            im5name = os.path.join(path, f"Flagging_cutouts/{um}heatmap_YB_{YBnum}.fits")
+
+            fitfile.data= workmaskum
+            fitfile.writeto(im1name, overwrite=True)
+
+            fitfile.data=export_mask
+            fitfile.writeto(im2name, overwrite=True)
+
+            fitfile.data=interp
+            fitfile.writeto(im3name, overwrite=True)
+
+            fitfile.data=resid
+            fitfile.writeto(im4name, overwrite=True)
+            
+            fitfile.data=heatmask
+            fitfile.writeto(im5name, overwrite=True)
+            
+            
                         
                         
           
        
-            
+        '''    
         flux = get_flux(residlist[3], residlist[2], residlist[1], residlist[0])
         fluxvalues = [flux.um70, flux.um24, flux.um12, flux.um8]
-       
+       '''
         
         '''fig, axs = plt.subplots(4, 4, figsize=(8, 16)) 
         plt.title(YBnum)
@@ -1420,7 +1457,7 @@ class AverageMask:
         plt.tight_layout()
         plt.show()   '''            
         #plt.pause(-1)
-        self.results.loc[len(self.results)] = [int(YBnum)]+fluxvalues+errorlist
+        #self.results.loc[len(self.results)] = [int(YBnum)]+fluxvalues+errorlist
         
         
         return 0
@@ -1429,13 +1466,13 @@ class AverageMask:
 #TODO change photom_overlay to be an object and have results be an item of the object. 
 Mask = AverageMask()
 
-for i in range(1672, 2009):
+for i in range(1, 2):
     Mask.photom_overlay(i)
-
+'''
 fluxvals = userdata = ascii.read("YB_frequency.csv", delimiter=',')
 
 graphvals = pd.merge(fluxvals.to_pandas(), Mask.results, on='YB')
-
+'''
 '''for i in [70, 24, 12, 8]: 
     plt.figure(figsize=(8, 6))  # Adjust the figure size if needed
     plt.plot(Mask.results['YB'], Mask.results[f'AvMaskFlux{i}'], marker='o', linestyle='None')
@@ -1446,7 +1483,7 @@ graphvals = pd.merge(fluxvals.to_pandas(), Mask.results, on='YB')
     plt.yscale('log')
     plt.xticks(Mask.results['YB'])
     plt.show()'''
-
+'''
 from scipy.stats import pearsonr
 from scipy import stats
 Mask = AverageMask() 
@@ -1534,7 +1571,7 @@ for x in ['']:
  
 graphvals.to_csv('AverageMaskAllData.csv', index=True)  
  
-    
+'''
  
     
 
