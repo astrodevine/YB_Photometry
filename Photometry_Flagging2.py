@@ -52,7 +52,7 @@ path1= '.'
 image_name= os.path.join(path, 'GLM_03000+0000_mosaic_I4.fits')
 catalog_name= os.path.join(path, 'USE_THIS_CATALOG_ybcat_MWP_with_ID.csv')
 #out_name= os.path.join(path1, 'YBphotometry_results.csv')
-instID= 'WolfChase1' #Change to be your ID
+instID= 'flagcsvfinal' #Change to be your ID
 out_name= os.path.join(path, 'YBphotometry_results_' + instID + '.csv')
 
 ######################################################
@@ -95,7 +95,7 @@ def make_flags(imlist1, imlist2, imlist3, imlist4, imlist5, imgwlist, YB):
     flagnames= ["Multiple sources within masked area", "No Obvious Source at 70 um",
                 "No Obvious Source at 24 um", "No Obvious Source at 12 um", "No Obvious Source at 8 um",
                  "Poor Confidence in 70 um Photometry", "Poor Confidence in 24 um Photometry",
-                 "Poor Confidence in 12 um Photometry", "Poor Confidence in 8 um Photometry", "Very Circular and Extended"]
+                 "Poor Confidence in 12 um Photometry", "Poor Confidence in 8 um Photometry", "Very Circular and Extended", "Review Source"]
     finish= "Done Flagging"
             
     fig= plt.figure(figsize=(32, 32))
@@ -148,12 +148,13 @@ def make_flags(imlist1, imlist2, imlist3, imlist4, imlist5, imgwlist, YB):
         if i == 0:
             plt.title('Average Mask', fontsize= 15)
         #plot background subtracted image if not saturated
-        if type(img2) != str:
+        if np.max(img2) != 0:
             plt.imshow(imlist2[i], cmap= cmap2)
         #"Saturated Image" text over black image if saturated
         else:
-            plt.text(10, dyw, img2, fontsize= 20, color= 'white')
-            plt.imshow(np.zeros_like(origlist[i]), cmap= 'gray')
+            plt.imshow(imlist2[i], cmap= cmap2)
+            plt.text(8, dyw, 'Saturated', fontsize= 20, color= 'white')
+            plt.text(23, dyw - 20, 'Image', fontsize= 20, color= 'white')
         plt.axis('off')
         
     #plot residual images
@@ -163,13 +164,14 @@ def make_flags(imlist1, imlist2, imlist3, imlist4, imlist5, imgwlist, YB):
         if i == 0:
             plt.title('Background Removed', fontsize= 15)
         #plot background subtracted image if not saturated
-        if type(img3) != str:
+        if np.max(img3) != 0:
             plt.imshow(img3, cmap= cmap)
                #norm=SymLogNorm(linthresh= LinearThreshold, vmin=img3.min(), vmax=img3.max()))
         #"Saturated Image" text over black image if saturated
         else:
-            plt.text(10, dyw, img3, fontsize= 20, color= 'white')
-            plt.imshow(np.zeros_like(origlist[i]), cmap= 'gray')
+            plt.imshow(imlist3[i], cmap= cmap)
+            plt.text(8, dyw, 'Saturated', fontsize= 20, color= 'white')
+            plt.text(23, dyw - 20, 'Image', fontsize= 20, color= 'white')
         plt.axis('off')
         
     #plot interpolated images
@@ -179,13 +181,14 @@ def make_flags(imlist1, imlist2, imlist3, imlist4, imlist5, imgwlist, YB):
         if i == 0:
             plt.title('Background Only', fontsize= 15)
         #plot background subtracted image if not saturated
-        if type(img4) != str:
-            plt.imshow(img4, cmap=cmap,
-               norm=SymLogNorm(linthresh= LinearThreshold, vmin=img4.min(), vmax=img4.max()))
+        if np.max(img4) != 0:
+            plt.imshow(img4, cmap=cmap)
+               #norm=SymLogNorm(linthresh= LinearThreshold, vmin=img4.min(), vmax=img4.max()))
         #"Saturated Image" text over black image if saturated
         else:
-            plt.text(10, dyw, img4, fontsize= 20, color= 'white')
-            plt.imshow(np.zeros_like(origlist[i]), cmap= 'gray')
+            plt.imshow(imlist4[i], cmap= cmap)
+            plt.text(8, dyw, 'Saturated', fontsize= 20, color= 'white')
+            plt.text(23, dyw - 20, 'Image', fontsize= 20, color= 'white')
         plt.axis('off')
         
     #plot heatmaps
@@ -195,13 +198,14 @@ def make_flags(imlist1, imlist2, imlist3, imlist4, imlist5, imgwlist, YB):
          if i == 0:
              plt.title('Selection Heatmap', fontsize= 15)
          #plot background subtracted image if not saturated
-         if type(img5) != str:
+         if np.max(img5) != 0:
              plt.imshow(img5, cmap=cmap)
                 #norm=SymLogNorm(linthresh= LinearThreshold, vmin=img5.min(), vmax=img5.max()))
          #"Saturated Image" text over black image if saturated
          else:
-             plt.text(10, dyw, img5, fontsize= 20, color= 'white')
-             plt.imshow(np.zeros_like(origlist[i]), cmap= 'gray')
+             plt.imshow(imlist5[i], cmap= cmap)
+             plt.text(8, dyw, 'Saturated', fontsize= 20, color= 'white')
+             plt.text(23, dyw - 20, 'Image', fontsize= 20, color= 'white')
          plt.axis('off')
     
     fig.suptitle('Flagging for YB ' + str(YB), fontsize= 15)
@@ -229,7 +233,7 @@ def make_flags(imlist1, imlist2, imlist3, imlist4, imlist5, imgwlist, YB):
     checks.on_clicked(marked)
     checks.rectangles
     for i in range(len(flagnames)):
-        checks.labels[i].set_fontsize(15)
+        checks.labels[i].set_fontsize(10)
     
     #continue button
     buttonaxes= plt.axes([.775, .475, .1, .075])
@@ -984,7 +988,7 @@ data= ascii.read(catalog_name, delimiter=',')
 #Set Pre-chosen range
 BegYB= 1
 
-YBlast= 9
+YBlast= 6176
 
 #Set linear threshold of the SymLogNorm
 LinearThreshold= 0.001
@@ -1158,7 +1162,9 @@ while (YB1 < YB2) and not done:
             avmask= fits.open(avmaskpath)
             avmasks.append(avmask[0].data)
             interp= fits.open(interppath)
-            interps.append(interp[0].data)
+            tempinterp = interp[0].data
+            np.nan_to_num(tempinterp, copy=False, nan=0.0, posinf=None, neginf=None)
+            interps.append(tempinterp)
             resid= fits.open(residpath)
             resids.append(resid[0].data)
             heatmap= fits.open(heatpath)
@@ -1176,15 +1182,15 @@ while (YB1 < YB2) and not done:
             heatmaps.append('Saturated Image')
             w = wcs.WCS(orig[0].header)
             wcslist.append(w)
-            
+    
     flag= make_flags(origlist, avmasks, resids, interps, heatmaps, wcslist, YB)
-            
+
     #####################################################
     # Writing to CSV                                    #        
     #####################################################
     
-    flagheaders= ['flag2', '8flag3', '12flag3', '24flag3', '70flag3', '8flag4', '12flag4',
-                  '24flag4', '70flag4', 'VCEflag']
+    flagheaders= ['8flag1', '12flag1', '24flag1', '70flag1', 'flag2', '8flag3', '12flag3', '24flag3', '70flag3', '8flag4', '12flag4',
+                  '24flag4', '70flag4', 'VCEflag', 'Review']
     
     #write flags to csv
     df= pd.read_csv(out_name)
