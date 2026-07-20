@@ -1,6 +1,6 @@
 Main Work Flow Steps:
-If MasterTable.csv, ExpertBool.csv, UserTable.csv, and ExpertxUser.csv exists:
-1. Load those four tables from GitHub
+If MasterTable.csv, UserTable.csv, and ExpertxUser.csv exists:
+1. Load those three tables from GitHub
 2. Load ExpertxUserOnward
 3. Connect Google API (Steps at End)
 4. Run each block accordingly
@@ -18,7 +18,7 @@ AverageMaskTable:
 4. This is all saved to a csv (MasterTable.csv) with the new masks, photometry values, standard error, and a count of photometry values used.
 5. All tables are created within the current working directory
 
-ExpertxUserInitial:
+CheckingqualInitial:
 1. Connect Google API (Steps At End)
 2. Second block loads data from MasterTable and UsedTables (A list of all used files)
 3. Next block pulls files from the folder with all the student values and saves to a local folder to pull from. 
@@ -30,7 +30,7 @@ ExpertxUserInitial:
 9. The last block then updates the UsedTables.csv to include all tables used 
 10. All tables are created within the current working directory
 
-ExpertxUserOnward:
+CheckingqualOnward:
 1. Connect Google API (Steps At End)
 2. Second block loads data from MasterTable, UsedTables (A list of all used files), and ExpertxUser
 3. Next block pulls files from the folder with all the new student values and saves to a local folder to pull from. 
