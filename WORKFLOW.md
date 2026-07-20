@@ -5,9 +5,10 @@ If MasterTable.csv, UserTable.csv, and ExpertxUser.csv exists load them from git
 3. If ExpertxUser.csv doesn't exist run CheckingqualInitial.ipynb
 4. Load ExpertxUserOnward
 5. Connect Google API (Steps at End)
-6. Run each block accordingly
-7. Push new UserTable.csv and ExpertxUser.csv to GitHub
-8. Move used student csvs out of "Please upload the file containing your photometry results ("YBphotometry_results_instructorID.csv") here. (File responses)" 
+5. Change all connect.to_csv lines to your directory
+7. Run each block accordingly
+8. Push new UserTable.csv and ExpertxUser.csv to GitHub
+9. Move used student csvs out of "Please upload the file containing your photometry results ("YBphotometry_results_instructorID.csv") here. (File responses)" 
 
 MasterTable.csv:
 -Has expert masks, average photometry values, standard errors, and counts for each yb and wavelength
